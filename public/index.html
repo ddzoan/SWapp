@@ -1,0 +1,131 @@
+<html>
+<script>
+window.addEventListener('load', function(){
+  filldays();
+  fillmonth();
+  fillyears();
+  fillhours();
+  fillminutes();
+
+  var submitbutton = document.getElementById('submit');
+  submitbutton.addEventListener('click',function(){
+    var postreq = new XMLHttpRequest();
+    var form = {};
+    form.first = document.getElementById('firstname').value;
+    form.last = document.getElementById('lastname').value;
+    form.conf = document.getElementById('confirm').value;
+    form.hour = document.getElementById('hour').value;
+    form.min = document.getElementById('minute').value;
+    form.month = parseInt(document.getElementById('month').value) + 1; //Ruby indexes months from 1
+    form.day = document.getElementById('day').value;
+    form.year = document.getElementById('year').value;
+    console.log('/newcheckin' + hash2params(form));
+    postreq.open('post','/newcheckin' + hash2params(form));
+    postreq.send();
+
+    postreq.addEventListener('load',function(){
+      var server_response = JSON.parse(postreq.responseText);
+      var display_response = document.getElementById('serverresponse');
+      display_response.innerHTML = "First Name: " + server_response.firstname + "<br>Last Name: " + server_response.lastname + "<br>Confirmation: " + server_response.confirmation + "<br>at time: " + server_response.time;
+    });
+  });
+});
+
+function hash2params(hash){
+  var paramstring = '';
+  var keys = Object.keys(hash);
+  for(var i=0; i < keys.length; ++i){
+    // (i == 0 ? '?' : '&')
+    paramstring += ((i == 0 ? '?' : '&') + encodeURIComponent(keys[i]) + '=' + encodeURIComponent(hash[keys[i]]));
+  }
+  return paramstring;
+}
+
+function fillmonth(){
+  var now = new Date();
+  var monthlist = document.getElementById('month');
+  monthlist.value = now.getMonth();
+}
+
+function filldays(){
+  var now = new Date();
+  var daylist = document.getElementById('day');
+  for(var i=1; i<=31; ++i){
+    var day = document.createElement('option');
+    day.setAttribute('value',i);
+    day.innerHTML = i;
+    daylist.appendChild(day);
+  }
+  daylist.value = now.getDate();
+}
+
+function fillyears(){
+  var now = new Date();
+  var yearlist = document.getElementById('year');
+  for(var i = 0; i < 2; ++i){
+    var year = document.createElement('option');
+    year.setAttribute('value',now.getFullYear()+i);
+    year.innerHTML = now.getFullYear()+i;
+    yearlist.appendChild(year);
+  }
+  yearlist.value = now.getFullYear();
+}
+
+function fillhours(){
+  var now = new Date();
+  var hourlist = document.getElementById('hour');
+  for(var i=0; i < 24; ++i){
+    var hour = document.createElement('option');
+    hour.setAttribute('value',i);
+    hour.innerHTML = i;
+    hourlist.appendChild(hour);
+  }
+  hourlist.value = now.getHours();
+}
+
+function fillminutes(){
+  var now = new Date();
+  var minutelist = document.getElementById('minute');
+  for(var i=0; i < 60; ++i){
+    var minute = document.createElement('option');
+    minute.setAttribute('value',i);
+    minute.innerHTML = i;
+    minutelist.appendChild(minute);
+  }
+  minutelist.value = 0;
+}
+
+</script>
+
+<body>
+  First name: <input id='firstname'></input><br>
+  Last name: <input id='lastname'></input><br>
+  Confirmation Number: <input id='confirm'></input><br><br>
+  Check-in time (Pacific Time zone):<br>
+  <select id='hour'></select>
+  <select id='minute'></select>
+<select id='month'>
+  <option value='0'>January</option>
+  <option value='1'>February</option>
+  <option value='2'>March</option>
+  <option value='3'>April</option>
+  <option value='4'>May</option>
+  <option value='5'>June</option>
+  <option value='6'>July</option>
+  <option value='7'>August</option>
+  <option value='8'>September</option>
+  <option value='9'>October</option>
+  <option value='10'>Novermber</option>
+  <option value='11'>December</option>
+</select>
+
+<select id='day'></select>
+
+<select id='year'></select>
+<br><br><br>
+<button id='submit'>Click Here to Submit Form</button>
+<br><br><br>
+<span id='serverresponse'></span>
+</body>
+
+</html>
