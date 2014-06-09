@@ -94,6 +94,10 @@ Thread.new do # trivial example work thread
   end
 end
 
+get '/' do
+  redirect '/index.html'
+end
+
 get '/checkin' do
 	firstname = params[:first]
   lastname = params[:last]
