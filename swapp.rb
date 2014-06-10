@@ -5,6 +5,7 @@ require 'json'
 
 class CheckinData
   attr_accessor :firstname, :lastname, :confnum, :time, :checkedin, :attempts
+  attr_accessor :response_code, :response_page, :response_name, :response_boarding, :checkin_time
 
   def initialize(firstname,lastname,confnum,time)
     @firstname = firstname
@@ -25,8 +26,7 @@ class CheckinData
     elsif attempts > 50
       return false
     else
-      puts time + ' - ' + Time.now + ' = ' + (time - Time.now)
-      return (time - Time.now) < 5
+      return timeToCheckin < 5
     end
   end
 
@@ -73,6 +73,13 @@ class CheckinData
           puts page.css('td.boarding_group').text + page.css('td.boarding_position').text
           # page.css('img.group').each{|x| puts x['alt']}
           # page.css('img.position').each{|x| puts x['alt']}
+          
+          @response_code = redirpage.code
+          @response_page = redirpage.body
+          @response_name = page.css('.passenger_name').text
+          @response_boarding = page.css('td.boarding_group').text + page.css('td.boarding_position').text
+          @checkin_time = Time.now
+
           checkedin = true
           return true
         end
@@ -96,17 +103,6 @@ end
 
 get '/' do
   redirect '/index.html'
-end
-
-get '/checkin' do
-	firstname = params[:first]
-  lastname = params[:last]
-  conf = params[:conf]
-  time = Time.at(params[:time].to_i)
-
-  allcheckins << CheckinData.new(firstname,lastname,conf,time)
-
-  allcheckins.to_s
 end
 
 get '/allcheckins' do

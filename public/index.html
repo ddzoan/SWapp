@@ -1,9 +1,15 @@
 <html>
+  <head><link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+  <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+  <!-- <link rel="stylesheet" href="/resources/demos/style.css"> -->
+  <script>
+  $(function() {
+    $( "#datepicker" ).datepicker();
+  });
+  </script>
 <script>
 window.addEventListener('load', function(){
-  filldays();
-  fillmonth();
-  fillyears();
   fillhours();
   fillminutes();
 
@@ -16,10 +22,11 @@ window.addEventListener('load', function(){
     form.conf = document.getElementById('confirm').value;
     form.hour = document.getElementById('hour').value;
     form.min = document.getElementById('minute').value;
-    form.month = parseInt(document.getElementById('month').value) + 1; //Ruby indexes months from 1
-    form.day = document.getElementById('day').value;
-    form.year = document.getElementById('year').value;
-    console.log('/newcheckin' + hash2params(form));
+
+    var date = document.getElementById('datepicker').value;
+    form.month = parseInt(date.split('/')[0]);
+    form.day = parseInt(date.split('/')[1]);
+    form.year = parseInt(date.split('/')[2]);
     postreq.open('post','/newcheckin' + hash2params(form));
     postreq.send();
 
@@ -35,40 +42,9 @@ function hash2params(hash){
   var paramstring = '';
   var keys = Object.keys(hash);
   for(var i=0; i < keys.length; ++i){
-    // (i == 0 ? '?' : '&')
     paramstring += ((i == 0 ? '?' : '&') + encodeURIComponent(keys[i]) + '=' + encodeURIComponent(hash[keys[i]]));
   }
   return paramstring;
-}
-
-function fillmonth(){
-  var now = new Date();
-  var monthlist = document.getElementById('month');
-  monthlist.value = now.getMonth();
-}
-
-function filldays(){
-  var now = new Date();
-  var daylist = document.getElementById('day');
-  for(var i=1; i<=31; ++i){
-    var day = document.createElement('option');
-    day.setAttribute('value',i);
-    day.innerHTML = i;
-    daylist.appendChild(day);
-  }
-  daylist.value = now.getDate();
-}
-
-function fillyears(){
-  var now = new Date();
-  var yearlist = document.getElementById('year');
-  for(var i = 0; i < 2; ++i){
-    var year = document.createElement('option');
-    year.setAttribute('value',now.getFullYear()+i);
-    year.innerHTML = now.getFullYear()+i;
-    yearlist.appendChild(year);
-  }
-  yearlist.value = now.getFullYear();
 }
 
 function fillhours(){
@@ -96,6 +72,7 @@ function fillminutes(){
 }
 
 </script>
+</head>
 
 <body>
   First name: <input id='firstname'></input><br>
@@ -104,28 +81,11 @@ function fillminutes(){
   Check-in time (Pacific Time zone):<br>
   <select id='hour'></select>
   <select id='minute'></select>
-<select id='month'>
-  <option value='0'>January</option>
-  <option value='1'>February</option>
-  <option value='2'>March</option>
-  <option value='3'>April</option>
-  <option value='4'>May</option>
-  <option value='5'>June</option>
-  <option value='6'>July</option>
-  <option value='7'>August</option>
-  <option value='8'>September</option>
-  <option value='9'>October</option>
-  <option value='10'>Novermber</option>
-  <option value='11'>December</option>
-</select>
-
-<select id='day'></select>
-
-<select id='year'></select>
-<br><br><br>
-<button id='submit'>Click Here to Submit Form</button>
-<br><br><br>
-<span id='serverresponse'></span>
+  <p><b><u>Check-in</b></u> (not flight) Date: <input type="text" id="datepicker"></p>
+  
+  <button id='submit'>Click Here to Submit Form</button>
+  <br><br><br>
+  <span id='serverresponse'></span>
 </body>
 
 </html>
