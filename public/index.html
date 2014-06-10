@@ -23,10 +23,10 @@ window.addEventListener('load', function(){
     form.hour = document.getElementById('hour').value;
     form.min = document.getElementById('minute').value;
 
-    var date = document.getElementById('datepicker').value;
-    form.month = parseInt(date.split('/')[0]);
-    form.day = parseInt(date.split('/')[1]);
-    form.year = parseInt(date.split('/')[2]);
+    var enteredDate = $( "#datepicker" ).datepicker( "getDate" );
+    form.month = enteredDate.getMonth() + 1; // For server since ruby indexes months from 1
+    form.day = enteredDate.getDate();
+    form.year = enteredDate.getFullYear();
     postreq.open('post','/newcheckin' + hash2params(form));
     postreq.send();
 

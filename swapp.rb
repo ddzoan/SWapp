@@ -106,11 +106,11 @@ get '/' do
 end
 
 get '/allcheckins' do
-  returnshit = ""
+  returncheckins = ""
   allcheckins.each do |x|
-    returnshit << x.firstname << ' ' << x.lastname << '. Conf #: ' << x.confnum << ' at ' << x.time.to_s << "<br>"
+    returncheckins << x.firstname << ' ' << x.lastname << '. Conf #: ' << x.confnum << ' at ' << x.time.to_s << "<br>"
   end
-  return returnshit
+  return returncheckins
 end
 
 post '/newcheckin' do
