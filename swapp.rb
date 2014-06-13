@@ -119,7 +119,7 @@ end
 
 get '/allcheckins' do
   returncheckins = ""
-  allcheckins.each do |x|
+  Checkindata.all.each do |x|
     returncheckins << x.firstname << ' ' << x.lastname << '. Conf #: ' << x.confnum << ' at ' << x.time.to_s << "<br>"
   end
   return returncheckins
