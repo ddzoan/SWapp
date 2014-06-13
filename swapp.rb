@@ -2,26 +2,38 @@ require 'sinatra'
 require 'restclient'
 require 'nokogiri'
 require 'json'
+require 'active_record'
 
-class CheckinData
-  attr_accessor :firstname, :lastname, :confnum, :time, :checkedin, :attempts
-  attr_accessor :response_code, :response_page, :response_name, :response_boarding, :checkin_time
+ActiveRecord::Base.establish_connection(
+  :adapter => "sqlite3",
+  :database => "checkins.db"
+  )
 
-  def initialize(firstname,lastname,confnum,time)
-    @firstname = firstname
-    @lastname = lastname
-    @confnum = confnum
-    @time = time
-    @checkedin = false
-    @attempts = 0
+ActiveRecord::Schema.define do
+  unless ActiveRecord::Base.connection.tables.include? 'checkindata'
+    create_table :checkindata do |table|
+      table.string :firstname
+      table.string :lastname
+      table.string :confnum
+      table.datetime :time
+      table.boolean :checkedin, default: false
+      table.integer :attempts, default: 0
+      table.integer :response_code
+      table.string :resp_page_file
+      table.string :response_name
+      table.string :response_boarding
+      table.string :checkin_time
+    end
   end
+end
 
+class Checkindata < ActiveRecord::Base
   def timeToCheckin()
     time - Time.now
   end
 
   def tryToCheckin?()
-    if @checkedin
+    if checkedin
       return false
     elsif attempts > 50
       return false
@@ -31,13 +43,13 @@ class CheckinData
   end
 
   def flight_checkin()
-    @attempts += 1
+    self.increment!(:attempts)
     form = { :'previously-selected-bar-panel' => "check-in-panel",
-    :confirmationNumber => @confnum,
-    :firstName => @firstname,
-    :lastName => @lastname,
+    :confirmationNumber => confnum,
+    :firstName => firstname,
+    :lastName => lastname,
     :submitButton => "Check In" }
-    
+
     checkin_doc = "http://www.southwest.com/flight/retrieveCheckinDoc.html"
 
     response = RestClient.post(checkin_doc,form) { |response, request, result, &block| response }
@@ -65,20 +77,21 @@ class CheckinData
         if final_response.code == 302
           redir = final_response.headers[:location]
           redirpage = RestClient.get(redir,:cookies => cookie) { |response, request, result, &block| response }
-          puts redirpage.code
-          puts redirpage.body
+          # puts redirpage.code
+          # puts redirpage.body
           puts "Should be SUCCESS at #{Time.now}"
           page = Nokogiri::HTML(redirpage.body)
-          puts page.css('.passenger_name').text
+          puts page.css('.passenger_name'). text
           puts page.css('td.boarding_group').text + page.css('td.boarding_position').text
           # page.css('img.group').each{|x| puts x['alt']}
           # page.css('img.position').each{|x| puts x['alt']}
           
-          @response_code = redirpage.code
-          @response_page = redirpage.body
-          @response_name = page.css('.passenger_name').text
-          @response_boarding = page.css('td.boarding_group').text + page.css('td.boarding_position').text
-          @checkin_time = Time.now
+          self.response_code = redirpage.code
+          # response_page = redirpage.body
+          self.response_name = page.css('.passenger_name').text
+          self.response_boarding = page.css('td.boarding_group').text + page.css('td.boarding_position').text
+          self.checkin_time = Time.now
+          self.save
 
           checkedin = true
           return true
@@ -90,10 +103,9 @@ end
 
 allcheckins = []
 
-Thread.new do # trivial example work thread
+Thread.new do # work thread
   while true do
-    sleep 1
-    allcheckins.each do |checkindata|
+    Checkindata.where(checkedin: false).order(:time).each do |checkindata|
       if checkindata.tryToCheckin?
         checkindata.flight_checkin
       end
@@ -125,8 +137,9 @@ post '/newcheckin' do
 
   time = Time.new(year.to_i, month.to_i, day.to_i, hour.to_i, minute.to_i)
 
-  allcheckins << CheckinData.new(firstname, lastname, conf, time)
+  # allcheckins << CheckinData.new(firstname, lastname, conf, time)
+  newcheckin = Checkindata.create(firstname,lastname,conf,time)
 
-  confirmhash = {firstname: firstname, lastname: lastname, confirmation: conf, time: time.to_s}
+  confirmhash = {firstname: newcheckin.firstname, lastname: newcheckin.lastname, confirmation: newcheckin.confnum, time: newcheckin.time.to_s}
   JSON.generate(confirmhash)
 end
