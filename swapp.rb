@@ -87,10 +87,13 @@ class Checkindata < ActiveRecord::Base
           # page.css('img.position').each{|x| puts x['alt']}
           
           self.response_code = redirpage.code
-          # response_page = redirpage.body
           self.response_name = page.css('.passenger_name').text
           self.response_boarding = page.css('td.boarding_group').text + page.css('td.boarding_position').text
           self.checkin_time = Time.now
+          
+          self.resp_page_file = checkin_time.to_s.split[0..1].join + confnum + '.html'
+          File.open(self.resp_page_file, 'w') { |file| file.write(redirpage.body) }
+          
           self.save
 
           checkedin = true
