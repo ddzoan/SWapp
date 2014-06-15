@@ -59,9 +59,14 @@ class Checkindata < ActiveRecord::Base
     if response.code == 200
       page = Nokogiri::HTML(response.body)
       if page.css("div#error_wrapper").length == 1
-        puts "GOT ERROR DIV, PROBABLY NOT TIME TO CHECK IN YET"
-        return false
+        puts "GOT ERROR DIV, WRITING ERROR TO FILE"
+        File.open(Time.now.to_s.split[0..1].join + '_errordiv.html', 'w') { |file| file.write(page.css("div#error_wrapper").text) }
+      else
+        puts "got 200, should have gotten 302, writing page to file"
+        File.open(Time.now.to_s.split[0..1].join + '_bad200.html', 'w') { |file| file.write(page) }
       end
+      
+      return false
     elsif response.code == 302
       # puts "forwarded to: #{response.headers[:location]}"
 
