@@ -3,6 +3,7 @@ require 'restclient'
 require 'nokogiri'
 require 'json'
 require 'active_record'
+require 'sqlite3'
 
 ActiveRecord::Base.establish_connection(
   :adapter => "sqlite3",
@@ -65,7 +66,7 @@ class Checkindata < ActiveRecord::Base
         puts "got 200, should have gotten 302, writing page to file"
         File.open(Time.now.to_s.split[0..1].join + '_bad200.html', 'w') { |file| file.write(page) }
       end
-      
+
       return false
     elsif response.code == 302
       # puts "forwarded to: #{response.headers[:location]}"
