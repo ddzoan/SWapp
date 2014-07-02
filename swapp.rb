@@ -1,11 +1,11 @@
-require 'rubygems'
 require 'sinatra'
-require 'restclient'
+require 'rest_client'
 require 'nokogiri'
 require 'json'
 require 'active_record'
-require 'sqlite3'
+# require 'sinatra-activerecord'
 
+# set :database, 'checkins.db'
 ActiveRecord::Base.establish_connection(
   :adapter => "sqlite3",
   :database => "checkins.db"
@@ -29,6 +29,7 @@ ActiveRecord::Schema.define do
   end
 end
 
+
 class Checkindata < ActiveRecord::Base
   def timeToCheckin()
     time - Time.now
@@ -40,7 +41,7 @@ class Checkindata < ActiveRecord::Base
     elsif attempts > 50
       return false
     else
-      return timeToCheckin < 5
+      return timeToCheckin < 1
     end
   end
 
@@ -98,7 +99,7 @@ class Checkindata < ActiveRecord::Base
           self.response_boarding = page.css('td.boarding_group').text + page.css('td.boarding_position').text
           self.checkin_time = Time.now
           
-          self.resp_page_file = checkin_time.to_s.split[0..1].join + confnum + '.html'
+          self.resp_page_file = checkin_time.to_s.split[0..1].join + '_' + confnum + '.html'
           File.open(self.resp_page_file, 'w') { |file| file.write(redirpage.body) }
           
           self.save
@@ -128,10 +129,13 @@ get '/' do
 end
 
 get '/allcheckins' do
-  returncheckins = ""
+  returncheckins = "<table><tr><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td></tr>"
   Checkindata.all.each do |x|
-    returncheckins << x.firstname << ' ' << x.lastname << '. Conf #: ' << x.confnum << ' at ' << x.time.to_s << "<br>"
+    returncheckins << "<tr><td>#{x.firstname}</td><td>#{x.lastname}</td><td>#{x.confnum}</td><td>#{x.time.to_s}</td></tr>"
+    # add delete link later
+    # returncheckins << "<tr><td><a href="">X</a></td><td>#{x.firstname}</td><td>#{x.lastname}</td><td>#{x.confnum}</td><td>#{x.time.to_s}</td></tr>"
   end
+  returncheckins << '</table>'
   return returncheckins
 end
 
@@ -147,8 +151,7 @@ post '/newcheckin' do
 
   time = Time.new(year.to_i, month.to_i, day.to_i, hour.to_i, minute.to_i)
 
-  # allcheckins << CheckinData.new(firstname, lastname, conf, time)
-  newcheckin = Checkindata.create(firstname,lastname,conf,time)
+  newcheckin = Checkindata.create({firstname: firstname, lastname: lastname, confnum: conf,time: time})
 
   confirmhash = {firstname: newcheckin.firstname, lastname: newcheckin.lastname, confirmation: newcheckin.confnum, time: newcheckin.time.to_s}
   JSON.generate(confirmhash)

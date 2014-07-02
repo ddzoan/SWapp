@@ -1,13 +1,14 @@
 <html>
-  <head><link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
-  <script src="//code.jquery.com/jquery-1.10.2.js"></script>
-  <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
-  <!-- <link rel="stylesheet" href="/resources/demos/style.css"> -->
-  <script>
-  $(function() {
-    $( "#datepicker" ).datepicker();
-  });
-  </script>
+  <head>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <!-- <link rel="stylesheet" href="/resources/demos/style.css"> -->
+    <script>
+    $(function() {
+      $( "#datepicker" ).datepicker();
+    });
+    </script>
 <script>
 window.addEventListener('load', function(){
   fillhours();
@@ -24,6 +25,10 @@ window.addEventListener('load', function(){
     form.min = document.getElementById('minute').value;
 
     var enteredDate = $( "#datepicker" ).datepicker( "getDate" );
+    // var enteredDate = document.getElementById('datepicker').value;
+    // form.month = enteredDate.split('/')[0];
+    // form.day = enteredDate.split('/')[1];
+    // form.year = enteredDate.split('/')[2];
     form.month = enteredDate.getMonth() + 1; // For server since ruby indexes months from 1
     form.day = enteredDate.getDate();
     form.year = enteredDate.getFullYear();
