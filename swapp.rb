@@ -129,9 +129,9 @@ get '/' do
 end
 
 get '/allcheckins' do
-  returncheckins = "<table><tr><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td></tr>"
+  returncheckins = "<table><tr><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td><td>Checked in?</td></tr>"
   Checkindata.all.each do |x|
-    returncheckins << "<tr><td>#{x.firstname}</td><td>#{x.lastname}</td><td>#{x.confnum}</td><td>#{x.time.to_s}</td></tr>"
+    returncheckins << "<tr><td>#{x.firstname}</td><td>#{x.lastname}</td><td>#{x.confnum}</td><td>#{x.time.to_s}</td><td>#{x.checkedin}</td></tr>"
     # add delete link later
     # returncheckins << "<tr><td><a href="">X</a></td><td>#{x.firstname}</td><td>#{x.lastname}</td><td>#{x.confnum}</td><td>#{x.time.to_s}</td></tr>"
   end
