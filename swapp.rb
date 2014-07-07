@@ -102,9 +102,9 @@ class Checkindata < ActiveRecord::Base
           self.resp_page_file = checkin_time.to_s.split[0..1].join + '_' + confnum + '.html'
           File.open(self.resp_page_file, 'w') { |file| file.write(redirpage.body) }
           
-          self.save
+          self.checkedin = true
 
-          checkedin = true
+          self.save
           return true
         end
       end
