@@ -95,7 +95,7 @@ class Checkindata < ActiveRecord::Base
           # page.css('img.position').each{|x| puts x['alt']}
           
           self.response_code = redirpage.code
-          self.response_name = page.css('.passenger_name').text
+          self.response_name = page.css('.passenger_name').text.strip
           self.response_boarding = page.css('td.boarding_group').text + page.css('td.boarding_position').text
           self.checkin_time = Time.now
           
@@ -131,9 +131,26 @@ end
 get '/allcheckins' do
   returncheckins = "<table><tr><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td><td>Checked in?</td></tr>"
   Checkindata.all.each do |x|
-    returncheckins << "<tr><td>#{x.firstname}</td><td>#{x.lastname}</td><td>#{x.confnum}</td><td>#{x.time.to_s}</td><td>#{x.checkedin}</td></tr>"
+    returncheckins << "<tr><td>#{x.firstname}</td><td>#{x.lastname}</td><td>#{x.confnum}</td><td>#{x.time.to_s}</td>"
+    returncheckins << "<tr><td>#{x.firstname}</td>"
+    returncheckins << "<td>#{x.lastname}</td>"
+    returncheckins << "<td>#{x.confnum}</td>"
+    returncheckins << "<td>#{x.time.to_s}</td>"
+    returncheckins << "<td>#{x.checkedin}</td></tr>"
     # add delete link later
     # returncheckins << "<tr><td><a href="">X</a></td><td>#{x.firstname}</td><td>#{x.lastname}</td><td>#{x.confnum}</td><td>#{x.time.to_s}</td></tr>"
+  end
+  returncheckins << '</table>'
+  return returncheckins
+end
+
+post '/allcheckins/sorted' do
+  returncheckins = "<table><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td></tr>"
+  Checkindata.where(checkedin: false).order(:time).each do |x|
+    returncheckins << "<tr><td>#{x.firstname}</td>"
+    returncheckins << "<td>#{x.lastname}</td>"
+    returncheckins << "<td>#{x.confnum}</td>"
+    returncheckins << "<td>#{x.time.to_s}</td></tr>"
   end
   returncheckins << '</table>'
   return returncheckins
