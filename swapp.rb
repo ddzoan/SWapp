@@ -144,13 +144,22 @@ get '/allcheckins' do
   return returncheckins
 end
 
-post '/allcheckins/sorted' do
-  returncheckins = "<table><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td></tr>"
+get '/allcheckins/sorted' do
+  returncheckins = "<table><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td><td>Checked In?</td>"
+  returncheckins << "<td>Attempts</td><td>RespCode</td><td>File</td><td>RespName</td><td>RespBoard</td><td>CheckedInTime</td></tr>"
   Checkindata.where(checkedin: false).order(:time).each do |x|
     returncheckins << "<tr><td>#{x.firstname}</td>"
     returncheckins << "<td>#{x.lastname}</td>"
     returncheckins << "<td>#{x.confnum}</td>"
-    returncheckins << "<td>#{x.time.to_s}</td></tr>"
+    returncheckins << "<td>#{x.time.to_s}</td>"
+    returncheckins << "<td>#{x.checkedin}</td>"
+    returncheckins << "<td>#{x.attempts}</td>"
+    returncheckins << "<td>#{x.response_code}</td>"
+    returncheckins << "<td>#{x.resp_page_file}</td>"
+    returncheckins << "<td>#{x.response_name}</td>"
+    returncheckins << "<td>#{x.response_boarding}</td>"
+    returncheckins << "<td>#{x.checkin_time}</td>"
+    returncheckins << "</tr>"
   end
   returncheckins << '</table>'
   return returncheckins
@@ -160,8 +169,8 @@ get '/resetdb' do
   ActiveRecord::Base.clear_active_connections!
 
   ActiveRecord::Base.establish_connection(
-  :adapter => "sqlite3",
-  :database => "checkins.db"
+    :adapter => "sqlite3",
+    :database => "checkins.db"
   )
 end
 
