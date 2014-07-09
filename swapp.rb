@@ -165,7 +165,7 @@ get '/allcheckins/sorted' do
   return returncheckins
 end
 
-get '/resetdb' do
+get '/resetdbconnection' do
   ActiveRecord::Base.clear_active_connections!
 
   ActiveRecord::Base.establish_connection(
