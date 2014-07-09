@@ -156,6 +156,15 @@ post '/allcheckins/sorted' do
   return returncheckins
 end
 
+get '/resetdb' do
+  ActiveRecord::Base.clear_active_connections!
+
+  ActiveRecord::Base.establish_connection(
+  :adapter => "sqlite3",
+  :database => "checkins.db"
+  )
+end
+
 post '/newcheckin' do
   firstname = params[:first]
   lastname = params[:last]
