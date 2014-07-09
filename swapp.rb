@@ -131,7 +131,6 @@ end
 get '/allcheckins' do
   returncheckins = "<table><tr><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td><td>Checked in?</td></tr>"
   Checkindata.all.each do |x|
-    returncheckins << "<tr><td>#{x.firstname}</td><td>#{x.lastname}</td><td>#{x.confnum}</td><td>#{x.time.to_s}</td>"
     returncheckins << "<tr><td>#{x.firstname}</td>"
     returncheckins << "<td>#{x.lastname}</td>"
     returncheckins << "<td>#{x.confnum}</td>"
@@ -148,7 +147,8 @@ get '/allcheckins/sorted' do
   returncheckins = "<table><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td><td>Checked In?</td>"
   returncheckins << "<td>Attempts</td><td>RespCode</td><td>File</td><td>RespName</td><td>RespBoard</td><td>CheckedInTime</td></tr>"
   Checkindata.where(checkedin: false).order(:time).each do |x|
-    returncheckins << "<tr><td>#{x.firstname}</td>"
+    returncheckins << "<tr>"
+    returncheckins << "<td>#{x.firstname}</td>"
     returncheckins << "<td>#{x.lastname}</td>"
     returncheckins << "<td>#{x.confnum}</td>"
     returncheckins << "<td>#{x.time.to_s}</td>"
