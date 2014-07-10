@@ -29,7 +29,6 @@ ActiveRecord::Schema.define do
   end
 end
 
-
 class Checkindata < ActiveRecord::Base
   def timeToCheckin()
     time - Time.now
@@ -119,6 +118,8 @@ Thread.new do # work thread
     Checkindata.where(checkedin: false).order(:time).each do |checkindata|
       if checkindata.tryToCheckin?
         checkindata.flight_checkin
+      else
+        sleep 0.1
       end
     end
   end
