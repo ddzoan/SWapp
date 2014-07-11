@@ -6,10 +6,15 @@ require 'active_record'
 # require 'sinatra-activerecord'
 
 # set :database, 'checkins.db'
-ActiveRecord::Base.establish_connection(
-  :adapter => "sqlite3",
-  :database => "checkins.db"
+def dbconnect()
+  ActiveRecord::Base.establish_connection(
+    :adapter => "sqlite3",
+    :database => "checkins.db",
+    :reaper_frequency => 8
   )
+end
+
+dbconnect()
 
 ActiveRecord::Schema.define do
   unless ActiveRecord::Base.connection.tables.include? 'checkindata'
@@ -115,11 +120,10 @@ allcheckins = []
 
 Thread.new do # work thread
   while true do
+    sleep 1
     Checkindata.where(checkedin: false).order(:time).each do |checkindata|
       if checkindata.tryToCheckin?
         checkindata.flight_checkin
-      else
-        sleep 0.1
       end
     end
   end
@@ -169,10 +173,7 @@ end
 get '/resetdbconnection' do
   ActiveRecord::Base.clear_active_connections!
 
-  ActiveRecord::Base.establish_connection(
-    :adapter => "sqlite3",
-    :database => "checkins.db"
-  )
+  dbconnect()
 end
 
 post '/newcheckin' do
