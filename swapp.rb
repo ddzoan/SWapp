@@ -51,7 +51,7 @@ class Checkindata < ActiveRecord::Base
     elsif attempts > 50
       return false
     else
-      return timeToCheckin < 1
+      return timeToCheckin < 2
     end
   end
 
@@ -109,7 +109,7 @@ class Checkindata < ActiveRecord::Base
           self.response_boarding = page.css('td.boarding_group').text + page.css('td.boarding_position').text
           self.checkin_time = Time.now
           
-          self.resp_page_file = checkin_time.to_s.split[0..1].join + '_' + confnum + '.html'
+          self.resp_page_file = checkin_time.to_s.split[0..1].join('_') + '_' + confnum + '.html'
           File.open("checkinpages/#{self.resp_page_file}", 'w') { |file| file.write(redirpage.body) }
           
           self.checkedin = true
@@ -126,7 +126,6 @@ allcheckins = []
 
 Thread.new do # work thread
   while true do
-    sleep 1
     Checkindata.where(checkedin: false).order(:time).each do |checkindata|
       if checkindata.tryToCheckin?
         checkindata.flight_checkin
