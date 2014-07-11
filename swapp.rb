@@ -16,6 +16,12 @@ end
 
 dbconnect()
 
+def resetdbconnection()
+  ActiveRecord::Base.clear_active_connections!
+
+  dbconnect()
+end
+
 ActiveRecord::Schema.define do
   unless ActiveRecord::Base.connection.tables.include? 'checkindata'
     create_table :checkindata do |table|
@@ -126,6 +132,7 @@ Thread.new do # work thread
         checkindata.flight_checkin
       end
     end
+    resetdbconnection()
   end
 end
 
@@ -191,9 +198,7 @@ get '/allcheckins/sorted' do
 end
 
 get '/resetdbconnection' do
-  ActiveRecord::Base.clear_active_connections!
-
-  dbconnect()
+  resetdbconnection()
 end
 
 post '/newcheckin' do
