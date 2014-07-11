@@ -167,6 +167,26 @@ get '/allcheckins/sorted' do
     returncheckins << "</tr>"
   end
   returncheckins << '</table>'
+
+  returncheckins<< '<br><br>'
+  returncheckins = "<table><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td><td>Checked In?</td>"
+  returncheckins << "<td>Attempts</td><td>RespCode</td><td>File</td><td>RespName</td><td>RespBoard</td><td>CheckedInTime</td></tr>"
+  Checkindata.where(checkedin: true).order(:time).each do |x|
+    returncheckins << "<tr>"
+    returncheckins << "<td>#{x.firstname}</td>"
+    returncheckins << "<td>#{x.lastname}</td>"
+    returncheckins << "<td>#{x.confnum}</td>"
+    returncheckins << "<td>#{x.time.to_s}</td>"
+    returncheckins << "<td>#{x.checkedin}</td>"
+    returncheckins << "<td>#{x.attempts}</td>"
+    returncheckins << "<td>#{x.response_code}</td>"
+    returncheckins << "<td>#{x.resp_page_file}</td>"
+    returncheckins << "<td>#{x.response_name}</td>"
+    returncheckins << "<td>#{x.response_boarding}</td>"
+    returncheckins << "<td>#{x.checkin_time}</td>"
+    returncheckins << "</tr>"
+  end
+  returncheckins << '</table>'
   return returncheckins
 end
 
