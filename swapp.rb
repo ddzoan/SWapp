@@ -9,8 +9,7 @@ require 'active_record'
 def dbconnect()
   ActiveRecord::Base.establish_connection(
     :adapter => "sqlite3",
-    :database => "checkins.db",
-    :reaper_frequency => 8
+    :database => "checkins.db"
   )
 end
 
