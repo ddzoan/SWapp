@@ -15,7 +15,7 @@ def dbconnect()
   )
 end
 
-dbconnect()
+# dbconnect()
 
 def resetdbconnection()
   ActiveRecord::Base.clear_active_connections!
@@ -25,6 +25,7 @@ end
 
 before do
   ActiveRecord::Base.clear_active_connections!
+  dbconnect()
 end
 
 ActiveRecord::Schema.define do
@@ -131,11 +132,13 @@ allcheckins = []
 
 Thread.new do # work thread
   while true do
-    Checkindata.where(checkedin: false).order(:time).each do |checkindata|
-      if checkindata.tryToCheckin?
-        checkindata.flight_checkin
+    ActiveRecord::Base.connection_pool.with_connection{
+      Checkindata.where(checkedin: false).order(:time).each do |checkindata|
+        if checkindata.tryToCheckin?
+          checkindata.flight_checkin
+        end
       end
-    end
+    }
     # resetdbconnection()
   end
 end
