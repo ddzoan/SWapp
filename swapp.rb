@@ -23,6 +23,10 @@ def resetdbconnection()
   dbconnect()
 end
 
+before do
+  ActiveRecord::Base.verify_active_connections!
+end
+
 ActiveRecord::Schema.define do
   unless ActiveRecord::Base.connection.tables.include? 'checkindata'
     create_table :checkindata do |table|
@@ -132,7 +136,7 @@ Thread.new do # work thread
         checkindata.flight_checkin
       end
     end
-    resetdbconnection()
+    # resetdbconnection()
   end
 end
 
@@ -152,7 +156,7 @@ get '/allcheckins' do
     # returncheckins << "<tr><td><a href="">X</a></td><td>#{x.firstname}</td><td>#{x.lastname}</td><td>#{x.confnum}</td><td>#{x.time.to_s}</td></tr>"
   end
   returncheckins << '</table>'
-  resetdbconnection()
+  # resetdbconnection()
   return returncheckins
 end
 
@@ -170,7 +174,7 @@ get '/allcheckins/sorted' do
     returncheckins << "</tr>"
   end
   returncheckins << '</table>'
-  resetdbconnection()
+  # resetdbconnection()
 
   returncheckins << '<br><br>'
   returncheckins << "<table><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td><td>Checked In?</td>"
@@ -191,7 +195,7 @@ get '/allcheckins/sorted' do
     returncheckins << "</tr>"
   end
   returncheckins << '</table>'
-  resetdbconnection()
+  # resetdbconnection()
   return returncheckins
 end
 
