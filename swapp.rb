@@ -3,6 +3,7 @@ require 'rest_client'
 require 'nokogiri'
 require 'json'
 require 'active_record'
+require 'mysql'
 # require 'sinatra-activerecord'
 
 # set :database, 'checkins.db'
@@ -19,7 +20,7 @@ dbconnect()
 def resetdbconnection()
   ActiveRecord::Base.clear_active_connections!
 
-  # dbconnect()
+  dbconnect()
 end
 
 ActiveRecord::Schema.define do
@@ -131,7 +132,7 @@ Thread.new do # work thread
         checkindata.flight_checkin
       end
     end
-    # resetdbconnection()
+    resetdbconnection()
   end
 end
 
@@ -151,13 +152,13 @@ get '/allcheckins' do
     # returncheckins << "<tr><td><a href="">X</a></td><td>#{x.firstname}</td><td>#{x.lastname}</td><td>#{x.confnum}</td><td>#{x.time.to_s}</td></tr>"
   end
   returncheckins << '</table>'
-  # resetdbconnection()
+  resetdbconnection()
   return returncheckins
 end
 
 get '/allcheckins/sorted' do
   returncheckins = "<table><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td><td>Checked In?</td>"
-  returncheckins << "<td>Attempts</td><td>RespCode</td><td>File</td><td>RespName</td><td>RespBoard</td><td>CheckedInTime</td></tr>"
+  returncheckins << "<td>Attempts</td>"
   Checkindata.where(checkedin: false).order(:time).each do |x|
     returncheckins << "<tr>"
     returncheckins << "<td>#{x.firstname}</td>"
@@ -166,14 +167,10 @@ get '/allcheckins/sorted' do
     returncheckins << "<td>#{x.time.to_s}</td>"
     returncheckins << "<td>#{x.checkedin}</td>"
     returncheckins << "<td>#{x.attempts}</td>"
-    returncheckins << "<td>#{x.response_code}</td>"
-    returncheckins << "<td>#{x.resp_page_file}</td>"
-    returncheckins << "<td>#{x.response_name}</td>"
-    returncheckins << "<td>#{x.response_boarding}</td>"
-    returncheckins << "<td>#{x.checkin_time}</td>"
     returncheckins << "</tr>"
   end
   returncheckins << '</table>'
+  resetdbconnection()
 
   returncheckins << '<br><br>'
   returncheckins << "<table><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td><td>Checked In?</td>"
@@ -194,6 +191,7 @@ get '/allcheckins/sorted' do
     returncheckins << "</tr>"
   end
   returncheckins << '</table>'
+  resetdbconnection()
   return returncheckins
 end
 
