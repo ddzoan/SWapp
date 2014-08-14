@@ -74,7 +74,7 @@ class Checkindata < ActiveRecord::Base
       page = Nokogiri::HTML(response.body)
       if page.css("div#error_wrapper").length == 1
         puts "GOT ERROR DIV, WRITING ERROR TO FILE"
-        File.open(Time.now.to_s.split[0..1].join + '_errordiv.html', 'w') { |file| file.write(page.css("div#error_wrapper").text) }
+        File.open("errors/#{Time.now.to_s.split[0..1].join}_" + confnum + '_errordiv.html', 'w') { |file| file.write(page.css("div#error_wrapper").text) }
       else
         puts "got 200, should have gotten 302, writing page to file"
         File.open(Time.now.to_s.split[0..1].join + '_bad200.html', 'w') { |file| file.write(page) }
