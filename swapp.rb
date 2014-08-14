@@ -8,8 +8,9 @@ require 'active_record'
 # set :database, 'checkins.db'
 def dbconnect()
   ActiveRecord::Base.establish_connection(
-    :adapter => "sqlite3",
-    :database => "checkins.db"
+    :adapter => "mysql",
+    :host => "localhost",
+    :database => "checkindata"
   )
 end
 
@@ -18,7 +19,7 @@ dbconnect()
 def resetdbconnection()
   ActiveRecord::Base.clear_active_connections!
 
-  dbconnect()
+  # dbconnect()
 end
 
 ActiveRecord::Schema.define do
@@ -130,7 +131,7 @@ Thread.new do # work thread
         checkindata.flight_checkin
       end
     end
-    resetdbconnection()
+    # resetdbconnection()
   end
 end
 
@@ -150,6 +151,7 @@ get '/allcheckins' do
     # returncheckins << "<tr><td><a href="">X</a></td><td>#{x.firstname}</td><td>#{x.lastname}</td><td>#{x.confnum}</td><td>#{x.time.to_s}</td></tr>"
   end
   returncheckins << '</table>'
+  # resetdbconnection()
   return returncheckins
 end
 
