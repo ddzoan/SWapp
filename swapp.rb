@@ -4,9 +4,7 @@ require 'nokogiri'
 require 'json'
 require 'active_record'
 require 'mysql'
-# require 'sinatra-activerecord'
 
-# set :database, 'checkins.db'
 def dbconnect()
   ActiveRecord::Base.establish_connection(
     :adapter => "mysql",
@@ -98,14 +96,10 @@ class Checkindata < ActiveRecord::Base
         if final_response.code == 302
           redir = final_response.headers[:location]
           redirpage = RestClient.get(redir,:cookies => cookie) { |response, request, result, &block| response }
-          # puts redirpage.code
-          # puts redirpage.body
           puts "Should be SUCCESS at #{Time.now}"
           page = Nokogiri::HTML(redirpage.body)
           puts page.css('.passenger_name').text.strip.split.join(' ')
           puts page.css('td.boarding_group').text + page.css('td.boarding_position').text
-          # page.css('img.group').each{|x| puts x['alt']}
-          # page.css('img.position').each{|x| puts x['alt']}
           
           self.response_code = redirpage.code
           self.response_name = page.css('.passenger_name').text.strip.split.join(' ')
@@ -155,7 +149,6 @@ get '/allcheckins' do
     # returncheckins << "<tr><td><a href="">X</a></td><td>#{x.firstname}</td><td>#{x.lastname}</td><td>#{x.confnum}</td><td>#{x.time.to_s}</td></tr>"
   end
   returncheckins << '</table>'
-  # resetdbconnection()
   return returncheckins
 end
 
@@ -173,7 +166,6 @@ get '/allcheckins/sorted' do
     returncheckins << "</tr>"
   end
   returncheckins << '</table>'
-  # resetdbconnection()
 
   returncheckins << '<br><br>'
   returncheckins << "<table><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td><td>Checked In?</td>"
@@ -194,7 +186,6 @@ get '/allcheckins/sorted' do
     returncheckins << "</tr>"
   end
   returncheckins << '</table>'
-  # resetdbconnection()
   return returncheckins
 end
 
