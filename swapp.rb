@@ -5,6 +5,8 @@ require 'json'
 require 'active_record'
 require 'mysql'
 
+password = ARGV.first #command line argument for restricted password
+
 def dbconnect()
   ActiveRecord::Base.establish_connection(
     :adapter => "mysql",
@@ -14,6 +16,19 @@ def dbconnect()
 end
 
 dbconnect()
+
+helpers do
+  def protected!
+    return if authorized?
+    headers['WWW-Authenticate'] = 'Basic realm="Restricted Area"'
+    halt 401, "Not authorized\n"
+  end
+
+  def authorized?
+    @auth ||=  Rack::Auth::Basic::Request.new(request.env)
+    @auth.provided? and @auth.basic? and @auth.credentials and @auth.credentials == ['guest', password]
+  end
+end
 
 def resetdbconnection()
   ActiveRecord::Base.clear_active_connections!
@@ -138,6 +153,7 @@ get '/' do
 end
 
 get '/allcheckins' do
+  protected!
   returncheckins = "<table><tr><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td><td>Checked in?</td></tr>"
   Checkindata.all.each do |x|
     returncheckins << "<tr><td>#{x.firstname}</td>"
@@ -153,6 +169,7 @@ get '/allcheckins' do
 end
 
 get '/allcheckins/sorted' do
+  protected!
   returncheckins = "<table><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td><td>Checked In?</td>"
   returncheckins << "<td>Attempts</td>"
   Checkindata.where(checkedin: false).order(:time).each do |x|
