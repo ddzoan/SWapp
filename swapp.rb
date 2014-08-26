@@ -5,7 +5,7 @@ require 'json'
 require 'active_record'
 require 'mysql'
 
-password = ARGV.first #command line argument for restricted password
+password = ARGV.last #command line argument for restricted password
 
 def dbconnect()
   ActiveRecord::Base.establish_connection(
@@ -52,6 +52,12 @@ ActiveRecord::Schema.define do
       table.string :response_name
       table.string :response_boarding
       table.string :checkin_time
+      table.string :departing_airport
+      table.datetime :depart_time
+      table.string :arriving_airport
+      table.datetime :arrive_time
+      table.string :flight_number
+      table.datetime :conf_date
     end
   end
 end
@@ -64,7 +70,7 @@ class Checkindata < ActiveRecord::Base
   def tryToCheckin?()
     if checkedin
       return false
-    elsif attempts > 50
+    elsif attempts > 10
       return false
     else
       return timeToCheckin < 2
