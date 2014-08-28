@@ -4,16 +4,10 @@ require 'nokogiri'
 require 'json'
 require 'active_record'
 require 'mysql'
+require 'yaml'
 
-def dbconnect()
-  ActiveRecord::Base.establish_connection(
-    :adapter => "mysql",
-    :host => "localhost",
-    :database => "checkindata"
-  )
-end
-
-dbconnect()
+dbconfig = YAML::load(File.open('database.yml'))
+ActiveRecord::Base.establish_connection(dbconfig)
 
 helpers do
   def protected!
@@ -34,30 +28,6 @@ end
 
 after do
   ActiveRecord::Base.clear_active_connections!
-end
-
-ActiveRecord::Schema.define do
-  unless ActiveRecord::Base.connection.tables.include? 'checkindata'
-    create_table :checkindata do |table|
-      table.string :firstname
-      table.string :lastname
-      table.string :confnum
-      table.datetime :time
-      table.boolean :checkedin, default: false
-      table.integer :attempts, default: 0
-      table.integer :response_code
-      table.string :resp_page_file
-      table.string :response_name
-      table.string :response_boarding
-      table.string :checkin_time
-      table.string :departing_airport
-      table.datetime :depart_time
-      table.string :arriving_airport
-      table.datetime :arrive_time
-      table.string :flight_number
-      table.datetime :conf_date
-    end
-  end
 end
 
 class Checkindata < ActiveRecord::Base
