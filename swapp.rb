@@ -146,14 +146,19 @@ get '/allcheckins/sorted' do
   protected!
   returncheckins = "<table><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td><td>Checked In?</td>"
   returncheckins << "<td>Attempts</td>"
+  returncheckins << "<td>Depart</td><td>Arrive</td><td>Flight#</td><td>LoggedDate</td>"
   Checkindata.where(checkedin: false).order(:time).each do |x|
     returncheckins << "<tr>"
     returncheckins << "<td>#{x.firstname}</td>"
     returncheckins << "<td>#{x.lastname}</td>"
     returncheckins << "<td>#{x.confnum}</td>"
-    returncheckins << "<td>#{x.time.to_s}</td>"
+    returncheckins << "<td>#{x.time.getlocal}</td>"
     returncheckins << "<td>#{x.checkedin}</td>"
     returncheckins << "<td>#{x.attempts}</td>"
+    returncheckins << "<td>#{x.departing_airport}</td>"
+    returncheckins << "<td>#{x.arriving_airport}</td>"
+    returncheckins << "<td>#{x.flight_number}</td>"
+    returncheckins << "<td>#{x.conf_logged}</td>"
     returncheckins << "</tr>"
   end
   returncheckins << '</table>'
