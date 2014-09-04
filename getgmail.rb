@@ -61,7 +61,7 @@ end
 def send_email(type, recipient, subject, firstname, lastname, confirmation, checkintime)
   case type
   when :confirmation
-    message = "From: ICheckYouIn <icheckyouin@gmail.com>\nTo: <#{recipient}>\n" +
+    message = "From: ICheckYouIn <#{$options[:login]}>\nTo: <#{recipient}>\n" +
       "Subject: #{subject}\n" +
       "Your checkin has been logged.\n" +
       "First Name: #{firstname}" +
@@ -69,7 +69,7 @@ def send_email(type, recipient, subject, firstname, lastname, confirmation, chec
       "Confirmation Number: #{confirmation}" +
       "Checkin Time in Pacific Time: #{checkintime}"
   when :delete
-    message = "From: ICheckYouIn <icheckyouin@gmail.com>\nTo: <#{recipient}>\n" +
+    message = "From: ICheckYouIn <#{$options[:login]}>\nTo: <#{recipient}>\n" +
       "Subject: #{subject}\n" +
       "The following checkin is being DELETED due to duplicate confirmation number. You will receive a confirmation email for the replacement flight"
       "First Name: #{firstname}" +
@@ -81,7 +81,7 @@ def send_email(type, recipient, subject, firstname, lastname, confirmation, chec
   smtp = Net::SMTP.new 'smtp.gmail.com', 587
   smtp.enable_starttls
   smtp.start('gmail.com', $options[:login], $options[:password], :login)
-  smtp.send_message message, 'icheckyouin@gmail.com', email_sender
+  smtp.send_message message, $options[:login], recipient
   smtp.finish
 end
 
