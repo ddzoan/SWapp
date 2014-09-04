@@ -158,29 +158,40 @@ def log_data()
     begin
 
     find_conf = emailhtml.search "[text()*='AIR Confirmation']"
+    find_name = emailhtml.search "[text()*='Passenger(s)']"
+
+    if find_name.empty?
+      raise EmailScrape::NameError
+    end
+
+    # This deals with 2 different types of formatting that Southwest gives in their confirmation emails.
+    # If the confirmation number is not found through the more common method, it searches assuming the other format.
+    # The name placement is dependent on this formatting so the relative element is found after determining the confirmation format.
+    if find_conf.empty?
+      find_conf = emailhtml.search "[text()*='Air Confirmation']"
+      confirmation = find_conf[0].parent.parent.parent.parent.parent.next_element.css('div').first.text.strip
+  
+      name = find_name[0].parent.parent.parent.parent.parent.next_element.css('div').last.text.strip
+    else
+      confirmation = find_conf[0].last_element_child.child.text.strip
+
+      name = find_name[0].parent.parent.parent.parent.parent.next_element.css('div').first.text.strip
+    end
+
     if find_conf.empty?
       raise EmailScrape::ConfirmationError
     end
 
-    confirmation = find_conf[0].last_element_child.child.text.strip
+    firstname,lastname = name_conversion(name)
 
     # Delete any old entries with the same confirmation num. Assumption: only updated itineraries will be sent in and old entries deleted
     # Someone who knows other confirmation numbers could potentially delete entries
     ActiveRecord::Base.connection_pool.with_connection do
-      Checkindata.where(confnum: confirmation).each do |checkin|
-        send_email(:delete, checkin.email_sender, "DELETING checkin for #{checkin.firstname} #{checkin.lastname}", checkin.firstname, checkin.lastname, checkin.confnum, checkin.time)
-        checkin.delete
+      Checkindata.where(confnum: confirmation).each do |ci|
+        send_email(:delete, ci.email_sender, "DELETING checkin for #{ci.firstname} #{ci.lastname}", ci.firstname, ci.lastname, ci.confnum, ci.time)
+        ci.delete
       end
     end
-
-    find_name = emailhtml.search "[text()*='Passenger(s)']"
-    if find_name.empty?
-      raise EmailScrape::NameError
-    end
-    
-    name = find_name[0].parent.parent.parent.parent.parent.next_element.css('div').first.text.strip
-
-    firstname,lastname = name_conversion(name)
 
     flight_dates = emailtext.scan(/(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun) (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d\d?/)
 
@@ -197,12 +208,13 @@ def log_data()
       find_dates.each do |find_date|
         flightnumber = find_date.parent.next_element.text.strip
         departure_elements = find_date.parent.next_element.next_element
-        departurecity = find_date.parent.next_element.next_element.css('div div')[0].css('b')[0].text
-        departurecitycode = find_date.parent.next_element.next_element.css('div div')[0].text.scan(/\((\w{3})\)/).first.first
-        departuretime = find_date.parent.next_element.next_element.css('div div')[0].css('b')[1].text
-        arrivalcity = find_date.parent.next_element.next_element.css('div div')[1].css('b')[0].text
-        arrivalcitycode = find_date.parent.next_element.next_element.css('div div')[1].text.scan(/\((\w{3})\)/).first.first
-        arrivaltimetext = find_date.parent.next_element.next_element.css('div div')[1].css('b')[1].text
+        
+        departurecity = departure_elements.css('div')[0].css('b')[0].text
+        departurecitycode = departure_elements.css('div')[0].text.scan(/\((\w{3})\)/).first.first
+        departuretime = departure_elements.css('div')[0].css('b')[1].text
+        arrivalcity = departure_elements.css('div')[0].css('b')[2].text
+        arrivalcitycode = departure_elements.css('div')[0].text.scan(/\((\w{3})\)/).last.first
+        arrivaltimetext = departure_elements.css('div')[0].css('b')[3].text
 
         year,month,day = sw_date_breakdown(date)
         
