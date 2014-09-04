@@ -71,7 +71,7 @@ def send_email(type, recipient, subject, firstname, lastname, confirmation, chec
   when :delete
     message = "From: ICheckYouIn <#{$options[:login]}>\nTo: <#{recipient}>\n" +
       "Subject: #{subject}\n" +
-      "The following checkin is being DELETED due to duplicate confirmation number. You will receive a confirmation email for the replacement flight"
+      "The following checkin is being DELETED due to duplicate confirmation number. You will receive a confirmation email for the replacement flight" +
       "First Name: #{firstname}" +
       "Last Name: #{lastname}" +
       "Confirmation Number: #{confirmation}" +
@@ -238,7 +238,7 @@ def log_data()
             flight_number: flightnumber,
             email_sender: sender,
             conf_logged: Time.now})
-          send_confirmation(:confirmation, sender, "CONFIRMATION: #{subject}", firstname, lastname, confirmation, checkintime)
+          send_email(:confirmation, sender, "CONFIRMATION: #{subject}", firstname, lastname, confirmation, checkintime)
         end
       end
     end
