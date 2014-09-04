@@ -146,7 +146,7 @@ get '/allcheckins/sorted' do
   protected!
   returncheckins = "<table><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td><td>Checked In?</td>"
   returncheckins << "<td>Attempts</td>"
-  returncheckins << "<td>Depart</td><td>Arrive</td><td>Flight#</td><td>LoggedDate</td>"
+  returncheckins << "<td>Depart</td><td>Arrive</td><td>Flight#</td><td>LoggedDate</td><td>EmailedFrom</td>"
   Checkindata.where(checkedin: false).order(:time).each do |x|
     returncheckins << "<tr>"
     returncheckins << "<td>#{x.firstname}</td>"
@@ -159,13 +159,14 @@ get '/allcheckins/sorted' do
     returncheckins << "<td>#{x.arriving_airport}</td>"
     returncheckins << "<td>#{x.flight_number}</td>"
     returncheckins << "<td>#{x.conf_logged}</td>"
+    returncheckins << "<td>#{x.email_sender}</td>"
     returncheckins << "</tr>"
   end
   returncheckins << '</table>'
 
   returncheckins << '<br><br>'
   returncheckins << "<table><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td><td>Checked In?</td>"
-  returncheckins << "<td>Attempts</td><td>RespCode</td><td>File</td><td>RespName</td><td>RespBoard</td><td>CheckedInTime</td></tr>"
+  returncheckins << "<td>Attempts</td><td>RespCode</td><td>RespName</td><td>RespBoard</td><td>CheckedInTime</td><td>EmailedFrom</td></tr>"
   Checkindata.where(checkedin: true).order(:time).each do |x|
     returncheckins << "<tr>"
     returncheckins << "<td>#{x.firstname}</td>"
@@ -175,10 +176,10 @@ get '/allcheckins/sorted' do
     returncheckins << "<td>#{x.checkedin}</td>"
     returncheckins << "<td>#{x.attempts}</td>"
     returncheckins << "<td>#{x.response_code}</td>"
-    returncheckins << "<td>#{x.resp_page_file}</td>"
     returncheckins << "<td>#{x.response_name}</td>"
     returncheckins << "<td>#{x.response_boarding}</td>"
     returncheckins << "<td>#{x.checkin_time}</td>"
+    returncheckins << "<td>#{x.email_sender}</td>"
     returncheckins << "</tr>"
   end
   returncheckins << '</table>'
