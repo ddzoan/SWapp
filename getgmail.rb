@@ -238,7 +238,7 @@ def log_data()
             flight_number: flightnumber,
             email_sender: sender,
             conf_logged: Time.now})
-          send_email(:confirmation, sender, "CONFIRMATION: #{subject}", firstname, lastname, confirmation, checkintime)
+          send_email(:confirmation, sender, "re: #{subject}", firstname, lastname, confirmation, checkintime)
         end
       end
     end
