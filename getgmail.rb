@@ -3,6 +3,7 @@ require 'nokogiri'
 require 'mail'
 require 'active_record'
 require 'optparse'
+require 'net/smtp'
 
 load 'airportdata/airporthash.rb'
 # use global var $timezone["AAA"] to get time zone, replace AAA with airport code
@@ -55,6 +56,33 @@ class EmailScrape
       super(message)
     end
   end
+end
+
+def send_email(type, recipient, subject, firstname, lastname, confirmation, checkintime)
+  case type
+  when :confirmation
+    message = "From: ICheckYouIn <icheckyouin@gmail.com>\nTo: <#{recipient}>\n" +
+      "Subject: #{subject}\n" +
+      "Your checkin has been logged.\n" +
+      "First Name: #{firstname}" +
+      "Last Name: #{lastname}" +
+      "Confirmation Number: #{confirmation}" +
+      "Checkin Time in Pacific Time: #{checkintime}"
+  when :delete
+    message = "From: ICheckYouIn <icheckyouin@gmail.com>\nTo: <#{recipient}>\n" +
+      "Subject: #{subject}\n" +
+      "The following checkin is being DELETED due to duplicate confirmation number. You will receive a confirmation email for the replacement flight"
+      "First Name: #{firstname}" +
+      "Last Name: #{lastname}" +
+      "Confirmation Number: #{confirmation}" +
+      "Checkin Time in Pacific Time: #{checkintime}"
+  end
+
+  smtp = Net::SMTP.new 'smtp.gmail.com', 587
+  smtp.enable_starttls
+  smtp.start('gmail.com', options[:login], options[:password], :login)
+  smtp.send_message message, 'icheckyouin@gmail.com', email_sender
+  smtp.finish
 end
 
 def sw_date_breakdown(date)
@@ -140,7 +168,7 @@ def log_data()
     # Someone who knows other confirmation numbers could potentially delete entries
     ActiveRecord::Base.connection_pool.with_connection do
       Checkindata.where(confnum: confirmation).each do |checkin|
-        # email person before deleting their checkin?
+        send_email(:delete, checkin.email_sender, "DELETING checkin for #{checkin.firstname} #{checkin.lastname}", checkin.firstname, checkin.lastname, checkin.conf_num, time)
         checkin.delete
       end
     end
@@ -210,6 +238,7 @@ def log_data()
             flight_number: flightnumber,
             email_sender: sender,
             conf_logged: Time.now})
+          send_confirmation(:confirmation, sender, "CONFIRMATION: #{subject}", firstname, lastname, confirmation, checkintime)
         end
       end
     end
