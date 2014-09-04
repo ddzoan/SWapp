@@ -168,7 +168,7 @@ def log_data()
     # Someone who knows other confirmation numbers could potentially delete entries
     ActiveRecord::Base.connection_pool.with_connection do
       Checkindata.where(confnum: confirmation).each do |checkin|
-        send_email(:delete, checkin.email_sender, "DELETING checkin for #{checkin.firstname} #{checkin.lastname}", checkin.firstname, checkin.lastname, checkin.conf_num, time)
+        send_email(:delete, checkin.email_sender, "DELETING checkin for #{checkin.firstname} #{checkin.lastname}", checkin.firstname, checkin.lastname, checkin.confnum, time)
         checkin.delete
       end
     end
