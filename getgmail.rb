@@ -9,16 +9,16 @@ load 'airportdata/airporthash.rb'
 # use global var $timezone["AAA"] to get time zone, replace AAA with airport code
 $debug = false
 
-options = {}
+$options = {}
 OptionParser.new do |opts|
   opts.banner = "Usage: getgmail.rb [options]"
 
   opts.on("-u", "--user USERNAME", "Require username") do |l|
-    options[:login] = l
+    $options[:login] = l
   end
 
   opts.on("-p", "--pass PASSWORD", "Require password") do |p|
-    options[:password] = p
+    $options[:password] = p
   end
 end.parse!
 
@@ -80,7 +80,7 @@ def send_email(type, recipient, subject, firstname, lastname, confirmation, chec
 
   smtp = Net::SMTP.new 'smtp.gmail.com', 587
   smtp.enable_starttls
-  smtp.start('gmail.com', options[:login], options[:password], :login)
+  smtp.start('gmail.com', $options[:login], $options[:password], :login)
   smtp.send_message message, 'icheckyouin@gmail.com', email_sender
   smtp.finish
 end
@@ -263,10 +263,10 @@ def log_data()
   $imap.expunge
 end
 
-if options[:login] && options[:password]
+if $options[:login] && $options[:password]
   while true
     $imap = Net::IMAP.new('imap.gmail.com', ssl: true)
-    $imap.login(options[:login], options[:password])
+    $imap.login($options[:login], $options[:password])
     $imap.select('INBOX')
 
     log_data()
