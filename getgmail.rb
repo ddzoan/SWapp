@@ -131,11 +131,11 @@ def get_checkin_time(flytime)
   end
 end
 
-def name_conversion(name,format)
-  if format == 1
+def name_conversion(name,formattype) # Depends on email format
+  if formattype == 1
     lastname = name.split('/')[0]
     firstname = name.split('/')[1].split(' ').first
-  elsif format == 2
+  elsif formattype == 2
     firstname = name.split.first
     lastname = name.split.last
   end
@@ -181,17 +181,17 @@ def log_data()
       confirmation = find_conf[0].parent.parent.parent.parent.parent.next_element.css('div').first.text.strip
   
       name = find_name[0].parent.parent.parent.parent.parent.next_element.css('div').last.text.strip
+      firstname,lastname = name_conversion(name,2)
     else
       confirmation = find_conf[0].last_element_child.child.text.strip
 
       name = find_name[0].parent.parent.parent.parent.parent.next_element.css('div').first.text.strip
+      firstname,lastname = name_conversion(name,1)
     end
 
     if find_conf.empty?
       raise EmailScrape::ConfirmationError
     end
-
-    firstname,lastname = name_conversion(name)
 
     # Delete any old entries with the same confirmation num. Assumption: only updated itineraries will be sent in and old entries deleted
     # Someone who knows other confirmation numbers could potentially delete entries
