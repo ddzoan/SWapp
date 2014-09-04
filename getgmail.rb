@@ -204,7 +204,7 @@ def log_data()
     $imap.copy(id, "logged")
     $imap.store(id, "+FLAGS", [:Deleted])
 
-    puts "copied #{id} #{subject} to logged and flagged for deletion" if debug
+    puts "copied #{id} #{subject} to logged and flagged for deletion" if $debug
 
     rescue EmailScrape::Error => e
       puts "#{e.message}. Moving it to errors folder!"
@@ -213,7 +213,7 @@ def log_data()
       $imap.copy(id, "errors")
       $imap.store(id, "+FLAGS", [:Deleted])
         
-      puts "copied #{id} to errors and flagged for deletion" if debug
+      puts "copied #{id} to errors and flagged for deletion" if $debug
     end
   end
 
