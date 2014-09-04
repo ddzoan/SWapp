@@ -64,17 +64,17 @@ def send_email(type, recipient, subject, firstname, lastname, confirmation, chec
     message = "From: ICheckYouIn <#{$options[:login]}>\nTo: <#{recipient}>\n" +
       "Subject: #{subject}\n" +
       "Your checkin has been logged.\n" +
-      "First Name: #{firstname}" +
-      "Last Name: #{lastname}" +
-      "Confirmation Number: #{confirmation}" +
+      "First Name: #{firstname}\n" +
+      "Last Name: #{lastname}\n" +
+      "Confirmation Number: #{confirmation}\n" +
       "Checkin Time in Pacific Time: #{checkintime}"
   when :delete
     message = "From: ICheckYouIn <#{$options[:login]}>\nTo: <#{recipient}>\n" +
       "Subject: #{subject}\n" +
-      "The following checkin is being DELETED due to duplicate confirmation number. You will receive a confirmation email for the replacement flight" +
-      "First Name: #{firstname}" +
-      "Last Name: #{lastname}" +
-      "Confirmation Number: #{confirmation}" +
+      "The following checkin is being DELETED due to duplicate confirmation number. You will receive a confirmation email for the replacement flight\n" +
+      "First Name: #{firstname}\n" +
+      "Last Name: #{lastname}\n" +
+      "Confirmation Number: #{confirmation}\n" +
       "Checkin Time in Pacific Time: #{checkintime}"
   end
 
