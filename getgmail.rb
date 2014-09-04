@@ -297,5 +297,7 @@ if $options[:login] && $options[:password]
     sleep 5
   end
 else
-  puts "You must enter a USERNAME and PASSWORD as command line arguments. For help, run \"getgmail.rb -help\""
+  puts "You must enter a USERNAME and PASSWORD as command line arguments.\nUsage: getgmail.rb [options]"
+  puts " -u, --user USERNAME              Require username"
+  puts " -p, --pass PASSWORD              Require password"
 end
