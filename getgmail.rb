@@ -131,11 +131,20 @@ def get_checkin_time(flytime)
   end
 end
 
-def name_conversion(name)
-  lastname = name.split('/')[0]
-  firstname = name.split('/')[1].split(' ').first
+def name_conversion(name,format)
+  if format == 1
+    lastname = name.split('/')[0]
+    firstname = name.split('/')[1].split(' ').first
+  elsif format == 2
+    firstname = name.split.first
+    lastname = name.split.last
+  end
 
-  return [firstname,lastname]
+  if !firstname.nil? && !lastname.nil?
+    return [firstname,lastname]
+  else
+    raise EmailScrape::NameError.new("Name Conversion failure")
+  end
 end
 
 def log_data()
@@ -208,7 +217,7 @@ def log_data()
       find_dates.each do |find_date|
         flightnumber = find_date.parent.next_element.text.strip
         departure_elements = find_date.parent.next_element.next_element
-        
+
         departurecity = departure_elements.css('div')[0].css('b')[0].text
         departurecitycode = departure_elements.css('div')[0].text.scan(/\((\w{3})\)/).first.first
         departuretime = departure_elements.css('div')[0].css('b')[1].text
