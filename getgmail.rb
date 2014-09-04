@@ -2,10 +2,24 @@ require 'net/imap'
 require 'nokogiri'
 require 'mail'
 require 'active_record'
+require 'optparse'
 
 load 'airportdata/airporthash.rb'
 # use global var $timezone["AAA"] to get time zone, replace AAA with airport code
 $debug = false
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: getgmail.rb [options]"
+
+  opts.on("-u", "--user USERNAME", "Require username") do |l|
+    options[:login] = l
+  end
+
+  opts.on("-p", "--pass PASSWORD", "Require password") do |p|
+    options[:password] = p
+  end
+end.parse!
 
 if !$debug
   dbconfig = YAML::load(File.open('database.yml'))
@@ -220,14 +234,18 @@ def log_data()
   $imap.expunge
 end
 
-while true
-  $imap = Net::IMAP.new('imap.gmail.com', ssl: true)
-  $imap.login('icheckyouin@gmail.com', ARGV.last)
-  $imap.select('INBOX')
+if options[:login] && options[:password]
+  while true
+    $imap = Net::IMAP.new('imap.gmail.com', ssl: true)
+    $imap.login(options[:login], options[:password])
+    $imap.select('INBOX')
 
-  log_data()
+    log_data()
 
-  $imap.logout
-  $imap.disconnect
-  sleep 5
+    $imap.logout
+    $imap.disconnect
+    sleep 5
+  end
+else
+  puts "You must enter a USERNAME and PASSWORD as command line arguments. For help, run \"getgmail.rb -help\""
 end
