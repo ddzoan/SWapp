@@ -327,7 +327,7 @@ if $options[:login] && $options[:password]
       sleep 60
       starttime = Time.now
       logins = 0
-      send_email(:notifydan,"dandzoan@gmail.com", "southwest gmail scrape error", {message: message}))
+      send_email(:notifydan,"dandzoan@gmail.com", "southwest gmail scrape error", {message: message} )
     end
   end
 else
