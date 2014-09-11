@@ -73,7 +73,7 @@ def send_email(type, recipient, subject, messagedata)
       "First Name: #{messagedata[:firstname]}\n" +
       "Last Name: #{messagedata[:lastname]}\n" +
       "Confirmation Number: #{messagedata[:confirmation]}\n" +
-      "Checkin Time in Pacific Time: #{messagedata[:checkintime]}"
+      "Checkin Time in Pacific Time: #{messagedata[:checkintime].localtime}"
   when :delete
     message = "From: ICheckYouIn <#{$options[:login]}>\nTo: <#{recipient}>\n" +
       "Subject: #{subject}\n" +
@@ -81,7 +81,7 @@ def send_email(type, recipient, subject, messagedata)
       "First Name: #{messagedata[:firstname]}\n" +
       "Last Name: #{messagedata[:lastname]}\n" +
       "Confirmation Number: #{messagedata[:confirmation]}\n" +
-      "Checkin Time in Pacific Time: #{messagedata[:checkintime]}"
+      "Checkin Time in Pacific Time: #{messagedata[:checkintime].localtime}"
   when :error
     message = "From: ICheckYouIn <#{$options[:login]}>\nTo: <#{recipient}>\n" +
       "Subject: #{subject}\n" +
@@ -93,13 +93,13 @@ def send_email(type, recipient, subject, messagedata)
   when :notifydan
     message = "From: ICheckYouIn <#{$options[:login]}>\nTo: <#{recipient}>\n" +
       "Subject: #{subject}\n" +
-      "Error message: #{messagedata[:message]}\n"
+      "Error message is below:\n\n#{messagedata[:message]}"
   end
 
   smtp = Net::SMTP.new 'smtp.gmail.com', 587
   smtp.enable_starttls
   smtp.start('gmail.com', $options[:login], $options[:password], :login)
-  smtp.send_message message, $options[:login], recipient
+  smtp.send_message(message, $options[:login], recipient)
   smtp.finish
 end
 
