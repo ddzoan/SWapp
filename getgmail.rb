@@ -93,7 +93,7 @@ def send_email(type, recipient, subject, messagedata)
   when :notifydan
     message = "From: ICheckYouIn <#{$options[:login]}>\nTo: <#{recipient}>\n" +
       "Subject: #{subject}\n" +
-      "Error message is below:\n\n#{messagedata[:message]}"
+      "Error message is below\n\n#{messagedata[:message]}"
   end
 
   smtp = Net::SMTP.new 'smtp.gmail.com', 587
