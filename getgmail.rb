@@ -39,6 +39,12 @@ class EmailScrape
   class Error < RuntimeError
   end
 
+  class NotSouthwestError < Error
+    def initialize(message = "Did not find 'southwest.com' text in email")
+      super(message)
+    end
+  end
+
   class ConfirmationError < Error
     def initialize(message = "Can't find 'AIR Confirmation' in email")
       super(message)
@@ -58,24 +64,36 @@ class EmailScrape
   end
 end
 
-def send_email(type, recipient, subject, firstname, lastname, confirmation, checkintime)
+def send_email(type, recipient, subject, messagedata)
   case type
   when :confirmation
     message = "From: ICheckYouIn <#{$options[:login]}>\nTo: <#{recipient}>\n" +
       "Subject: #{subject}\n" +
       "Your checkin has been logged.\n" +
-      "First Name: #{firstname}\n" +
-      "Last Name: #{lastname}\n" +
-      "Confirmation Number: #{confirmation}\n" +
-      "Checkin Time in Pacific Time: #{checkintime}"
+      "First Name: #{messagedata[:firstname]}\n" +
+      "Last Name: #{messagedata[:lastname]}\n" +
+      "Confirmation Number: #{messagedata[:confirmation]}\n" +
+      "Checkin Time in Pacific Time: #{messagedata[:checkintime]}"
   when :delete
     message = "From: ICheckYouIn <#{$options[:login]}>\nTo: <#{recipient}>\n" +
       "Subject: #{subject}\n" +
       "The following checkin is being DELETED due to duplicate confirmation number. You will receive a confirmation email for the replacement flight\n" +
-      "First Name: #{firstname}\n" +
-      "Last Name: #{lastname}\n" +
-      "Confirmation Number: #{confirmation}\n" +
-      "Checkin Time in Pacific Time: #{checkintime}"
+      "First Name: #{messagedata[:firstname]}\n" +
+      "Last Name: #{messagedata[:lastname]}\n" +
+      "Confirmation Number: #{messagedata[:confirmation]}\n" +
+      "Checkin Time in Pacific Time: #{messagedata[:checkintime]}"
+  when :error
+    message = "From: ICheckYouIn <#{$options[:login]}>\nTo: <#{recipient}>\n" +
+      "Subject: #{subject}\n" +
+      "Error message!!!\n" +
+      "Error message!!!\n" +
+      "Error message!!!\n" +
+      "Error message!!!\n" +
+      "Error message!!!\n"
+  when :notifydan
+    message = "From: ICheckYouIn <#{$options[:login]}>\nTo: <#{recipient}>\n" +
+      "Subject: #{subject}\n" +
+      "Error message: #{messagedata[:message]}\n"
   end
 
   smtp = Net::SMTP.new 'smtp.gmail.com', 587
@@ -199,7 +217,7 @@ def log_data()
     # Someone who knows other confirmation numbers could potentially delete entries
     ActiveRecord::Base.connection_pool.with_connection do
       Checkindata.where(confnum: confirmation).each do |ci|
-        send_email(:delete, ci.email_sender, "DELETING checkin for #{ci.firstname} #{ci.lastname}", ci.firstname, ci.lastname, ci.confnum, ci.time)
+        send_email(:delete, ci.email_sender, "DELETING checkin for #{ci.firstname} #{ci.lastname}", {firstname: ci.firstname,lastname: ci.lastname,confirmation: ci.confnum, checkintime: ci.time})
         ci.delete
       end
     end
@@ -261,7 +279,7 @@ def log_data()
             flight_number: flightnumber,
             email_sender: sender,
             conf_logged: Time.now})
-          send_email(:confirmation, sender, "re: #{subject}", firstname, lastname, confirmation, checkintime)
+          send_email(:confirmation, sender, "re: #{subject}", {firstname: firstname, lastname: lastname, confirmation: confirmation, checkintime: checkintime})
         end
       end
     end
@@ -286,17 +304,31 @@ def log_data()
   $imap.expunge
 end
 
+starttime = Time.now
+logins = 0
+
 if $options[:login] && $options[:password]
   while true
-    $imap = Net::IMAP.new('imap.gmail.com', ssl: true)
-    $imap.login($options[:login], $options[:password])
-    $imap.select('INBOX')
+    begin
+      logins += 1
+      $imap = Net::IMAP.new('imap.gmail.com', ssl: true)
+      $imap.login($options[:login], $options[:password])
+      $imap.select('INBOX')
 
-    log_data()
+      log_data()
 
-    $imap.logout
-    $imap.disconnect
-    sleep 5
+      $imap.logout
+      $imap.disconnect
+      sleep 5
+    rescue Net::IMAP::ByeResponseError
+      message = "ByeResponseError #{Time.now - starttime} seconds from start. Server has logged in #{logins} times. Sleeping 1 minute and then resetting starttime and logins."
+      puts message
+      File.open('gmailerrors.txt', 'a') { |file| file.write(message + "\n") }
+      sleep 60
+      starttime = Time.now
+      logins = 0
+      send_email(:notifydan,"dandzoan@gmail.com", "southwest gmail scrape error", {message: message}))
+    end
   end
 else
   puts "You must enter a USERNAME and PASSWORD as command line arguments.\nUsage: getgmail.rb [options]"
