@@ -307,31 +307,35 @@ end
 starttime = Time.now
 logins = 0
 
-if $options[:login] && $options[:password]
-  while true
-    begin
-      logins += 1
-      $imap = Net::IMAP.new('imap.gmail.com', ssl: true)
-      $imap.login($options[:login], $options[:password])
-      $imap.select('INBOX')
+begin
+  if $options[:login] && $options[:password]
+    while true
+      begin
+        logins += 1
+        $imap = Net::IMAP.new('imap.gmail.com', ssl: true)
+        $imap.login($options[:login], $options[:password])
+        $imap.select('INBOX')
 
-      log_data()
+        log_data()
 
-      $imap.logout
-      $imap.disconnect
-      sleep 5
-    rescue Net::IMAP::ByeResponseError
-      message = "ByeResponseError #{Time.now - starttime} seconds from start. Server has logged in #{logins} times. Sleeping 1 minute and then resetting starttime and logins."
-      puts message
-      File.open('gmailerrors.txt', 'a') { |file| file.write(message + "\n") }
-      sleep 60
-      starttime = Time.now
-      logins = 0
-      send_email(:notifydan,"dandzoan@gmail.com", "southwest gmail scrape error", {message: message} )
+        $imap.logout
+        $imap.disconnect
+        sleep 5
+      rescue Net::IMAP::ByeResponseError
+        message = "ByeResponseError #{Time.now - starttime} seconds from start. Server has logged in #{logins} times. Sleeping 1 minute and then resetting starttime and logins."
+        puts message
+        File.open('gmailerrors.txt', 'a') { |file| file.write(message + "\n") }
+        sleep 60
+        starttime = Time.now
+        logins = 0
+        send_email(:notifydan,"dandzoan@gmail.com", "southwest gmail scrape error", {message: message} )
+      end
     end
+  else
+    puts "You must enter a USERNAME and PASSWORD as command line arguments.\nUsage: getgmail.rb [options]"
+    puts " -u, --user USERNAME              Require username"
+    puts " -p, --pass PASSWORD              Require password"
   end
-else
-  puts "You must enter a USERNAME and PASSWORD as command line arguments.\nUsage: getgmail.rb [options]"
-  puts " -u, --user USERNAME              Require username"
-  puts " -p, --pass PASSWORD              Require password"
+rescue => e
+  send_email(:notifydan,"dandzoan@gmail.com", "Gmail Checker Crashed", {message: "gmail checker crashed \n\n#{e.message}"})
 end
