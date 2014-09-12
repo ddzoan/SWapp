@@ -20,6 +20,10 @@ OptionParser.new do |opts|
   opts.on("-p", "--pass PASSWORD", "Require password") do |p|
     $options[:password] = p
   end
+
+  opts.on("-n", "--notif ADMIN", "Require admin email for notifications") do |n|
+    $options[:notify] = n
+  end
 end.parse!
 
 if !$debug
@@ -308,7 +312,7 @@ starttime = Time.now
 logins = 0
 
 begin
-  if $options[:login] && $options[:password]
+  if $options[:login] && $options[:password] && $options[:notify]
     while true
       begin
         logins += 1
@@ -328,14 +332,15 @@ begin
         sleep 60
         starttime = Time.now
         logins = 0
-        send_email(:notifydan,"dandzoan@gmail.com", "southwest gmail scrape error", {message: message} )
+        # send_email(:notifydan,$options[:notify], "southwest gmail scrape error", {message: message} )
       end
     end
   else
     puts "You must enter a USERNAME and PASSWORD as command line arguments.\nUsage: getgmail.rb [options]"
     puts " -u, --user USERNAME              Require username"
     puts " -p, --pass PASSWORD              Require password"
+    puts " -n, --notif ADMIN                Require admin email for notifications"
   end
 rescue => e
-  send_email(:notifydan,"dandzoan@gmail.com", "Gmail Checker Crashed", {message: "gmail checker crashed \n\n#{e.message}"})
+  send_email(:notifydan,$options[:notify], "Gmail Checker Crashed", {message: "gmail checker crashed \n\n#{e.message}\n\n#{e.backtrace}"})
 end
