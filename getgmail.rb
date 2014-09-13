@@ -5,7 +5,7 @@ require 'active_record'
 require 'optparse'
 require 'net/smtp'
 
-load 'airportdata/airporthash.rb'
+require './airportdata/airporthash.rb'
 # use global var $timezone["AAA"] to get time zone, replace AAA with airport code
 $debug = false
 

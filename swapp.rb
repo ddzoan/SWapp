@@ -5,6 +5,7 @@ require 'json'
 require 'active_record'
 require 'mysql'
 require 'yaml'
+require './checkinclass.rb'
 
 dbconfig = YAML::load(File.open('database.yml'))
 ActiveRecord::Base.establish_connection(dbconfig)
@@ -28,84 +29,6 @@ end
 
 after do
   ActiveRecord::Base.clear_active_connections!
-end
-
-class Checkindata < ActiveRecord::Base
-  def timeToCheckin()
-    time - Time.now
-  end
-
-  def tryToCheckin?()
-    if checkedin
-      return false
-    elsif attempts > 10
-      return false
-    else
-      return timeToCheckin < 2
-    end
-  end
-
-  def flight_checkin()
-    self.increment!(:attempts)
-    form = { :'previously-selected-bar-panel' => "check-in-panel",
-    :confirmationNumber => confnum,
-    :firstName => firstname,
-    :lastName => lastname,
-    :submitButton => "Check In" }
-
-    checkin_doc = "http://www.southwest.com/flight/retrieveCheckinDoc.html"
-
-    response = RestClient.post(checkin_doc,form) { |response, request, result, &block| response }
-
-    cookie = response.cookies
-
-    if response.code == 200
-      page = Nokogiri::HTML(response.body)
-      if page.css("div#error_wrapper").length == 1
-        puts "GOT ERROR DIV, WRITING ERROR TO FILE"
-        File.open("errors/#{Time.now.to_s.split[0..1].join}_" + confnum + '_errordiv.html', 'w') { |file| file.write(page.css("div#error_wrapper").text) }
-      else
-        puts "got 200, should have gotten 302, writing page to file"
-        File.open(Time.now.to_s.split[0..1].join + '_bad200.html', 'w') { |file| file.write(page) }
-      end
-
-      return false
-    elsif response.code == 302
-      # puts "forwarded to: #{response.headers[:location]}"
-
-      #follow forward
-      response = RestClient.get(response.headers[:location],:cookies => cookie) { |response, request, result, &block| response }
-      page = Nokogiri::HTML(response.body)
-      
-      if page.css("input.swa_buttons_submitButton")[0]['title'] == "Check In"
-        real_checkin = "http://www.southwest.com/flight/selectPrintDocument.html"
-        checkin_form = { :'checkinPassengers[0].selected' => true, :printDocuments => "Check In" }
-
-        final_response = RestClient.post(real_checkin,checkin_form,:cookies => cookie) { |response, request, result, &block| response }
-        if final_response.code == 302
-          redir = final_response.headers[:location]
-          redirpage = RestClient.get(redir,:cookies => cookie) { |response, request, result, &block| response }
-          puts "Should be SUCCESS at #{Time.now}"
-          page = Nokogiri::HTML(redirpage.body)
-          puts page.css('.passenger_name').text.strip.split.join(' ')
-          puts page.css('td.boarding_group').text + page.css('td.boarding_position').text
-          
-          self.response_code = redirpage.code
-          self.response_name = page.css('.passenger_name').text.strip.split.join(' ')
-          self.response_boarding = page.css('td.boarding_group').text + page.css('td.boarding_position').text
-          self.checkin_time = Time.now
-          
-          self.resp_page_file = checkin_time.to_s.split[0..1].join('_') + '_' + confnum + '.html'
-          File.open("checkinpages/#{self.resp_page_file}", 'w') { |file| file.write(redirpage.body) }
-          
-          self.checkedin = true
-
-          self.save
-          return true
-        end
-      end
-    end
-  end
 end
 
 allcheckins = []
