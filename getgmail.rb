@@ -89,11 +89,7 @@ def send_email(type, recipient, subject, messagedata)
   when :error
     message = "From: ICheckYouIn <#{$options[:login]}>\nTo: <#{recipient}>\n" +
       "Subject: #{subject}\n" +
-      "Error message!!!\n" +
-      "Error message!!!\n" +
-      "Error message!!!\n" +
-      "Error message!!!\n" +
-      "Error message!!!\n"
+      "Error message is below \n\n#{messagedata[:message]}"
   when :notifydan
     message = "From: ICheckYouIn <#{$options[:login]}>\nTo: <#{recipient}>\n" +
       "Subject: #{subject}\n" +
@@ -189,6 +185,10 @@ def log_data()
 
     # catch exceptions if necessary checkin data is not found
     begin
+
+    if !emailtext.include?("southwest.com")
+      raise EmailScrape::NotSouthwestError
+    end
 
     find_conf = emailhtml.search "[text()*='AIR Confirmation']"
     find_name = emailhtml.search "[text()*='Passenger(s)']"
@@ -297,6 +297,9 @@ def log_data()
     rescue EmailScrape::Error => e
       puts "#{e.message}. Moving it to errors folder!"
       File.open('errors/emailscrape/log.txt', 'a') { |file| file.write(Time.now.to_s + ' ' + e.message + ' "' + subject + "\"\n") }
+
+      send_email(:notifydan,$options[:notify], "Bad southwest email received", {message: "A message was moved to the errors folder \n\n#{e.message}\n\n#{e.backtrace}"})
+      send_email(:error,sender, "re: #{subject}", {message: "An error has occurred while trying to log your data. \n\n#{e.message}"})
       
       $imap.copy(id, "errors")
       $imap.store(id, "+FLAGS", [:Deleted])
