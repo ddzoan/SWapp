@@ -49,6 +49,11 @@ get '/' do
   redirect '/index.html'
 end
 
+get '/index.html' do
+  protected!
+  send_file('private/index.html')
+end
+
 get '/allcheckins' do
   protected!
   returncheckins = "<table><tr><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td><td>Checked in?</td></tr>"
