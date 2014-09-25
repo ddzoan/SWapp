@@ -99,7 +99,7 @@ get '/allcheckins/sorted' do
     returncheckins << "<tr>"
     returncheckins << "<td>#{x.firstname}</td>"
     returncheckins << "<td>#{x.lastname}</td>"
-    returncheckins << "<td>#{x.confnum}</td>"
+    returncheckins << "<td><a href='/allcheckins/sorted/#{x.resp_page_file}'>#{x.confnum}</a></td>"
     returncheckins << "<td>#{x.time.to_s}</td>"
     returncheckins << "<td>#{x.checkedin}</td>"
     returncheckins << "<td>#{x.attempts}</td>"
@@ -112,6 +112,11 @@ get '/allcheckins/sorted' do
   end
   returncheckins << '</table>'
   return returncheckins
+end
+
+get '/allcheckins/sorted/:file' do
+  protected!
+  send_file("checkinpages/#{params[:file]}")
 end
 
 get '/resetdbconnection' do
