@@ -12,7 +12,7 @@ class CreateCheckindata < ActiveRecord::Migration
         table.string :resp_page_file
         table.string :response_name
         table.string :response_boarding
-        table.string :checkin_time
+        table.datetime :checkin_time
       end
     end
   end

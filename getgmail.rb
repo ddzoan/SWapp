@@ -108,10 +108,13 @@ def sw_date_breakdown(date)
   month = months.index(date.split[1]).to_i + 1
   day = date.split.last.to_i
 
-  if month >= Time.now.month && day >= Time.now.day
-    year = Time.now.year
-  else
-    year = Time.now.year + 1
+  # If the checkin date is before the current day, log it as the following year
+  # This is because the southwest date formats do not show year so an assumption is made
+  year = Time.now.year
+  if month < Time.now.month
+    year += 1
+  elsif month == Time.now.month && day < Time.now.day
+    year += 1
   end
 
   return [year, month, day]
