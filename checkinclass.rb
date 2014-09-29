@@ -1,3 +1,5 @@
+require 'time'
+
 class Checkindata < ActiveRecord::Base
   def timeToCheckin()
     time - Time.now
@@ -61,7 +63,7 @@ class Checkindata < ActiveRecord::Base
           self.response_code = redirpage.code
           self.response_name = page.css('.passenger_name').text.strip.split.join(' ')
           self.response_boarding = page.css('td.boarding_group').text + page.css('td.boarding_position').text
-          self.checkin_time = Time.now
+          self.checkin_time = Time.now.iso8601(3)
           
           self.resp_page_file = checkin_time.to_s.split[0..1].join('_') + '_' + confnum + '.html'
           File.open("checkinpages/#{self.resp_page_file}", 'w') { |file| file.write(redirpage.body) }

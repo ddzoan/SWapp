@@ -94,7 +94,7 @@ get '/allcheckins/sorted' do
 
   returncheckins << '<br><br>'
   returncheckins << "<table><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td><td>Checked In?</td>"
-  returncheckins << "<td>Attempts</td><td>RespName</td><td>RespBoard</td><td>CheckedInTime</td><td>EmailedFrom</td></tr>"
+  returncheckins << "<td>Attempts</td><td>RespBoard</td><td>CheckedInTime</td><td>EmailedFrom</td></tr>"
   Checkindata.where(checkedin: true).order(:time).each do |x|
     returncheckins << "<tr>"
     returncheckins << "<td>#{x.firstname}</td>"
@@ -103,9 +103,8 @@ get '/allcheckins/sorted' do
     returncheckins << "<td>#{x.time.getlocal}</td>"
     returncheckins << "<td>#{x.checkedin}</td>"
     returncheckins << "<td>#{x.attempts}</td>"
-    returncheckins << "<td>#{x.response_name}</td>"
     returncheckins << "<td>#{x.response_boarding}</td>"
-    returncheckins << "<td>#{x.checkin_time.getlocal}</td>"
+    returncheckins << "<td>#{x.checkin_time}</td>"
     returncheckins << "<td>#{x.email_sender}</td>"
     returncheckins << "</tr>"
   end
