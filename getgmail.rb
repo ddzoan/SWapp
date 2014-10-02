@@ -106,15 +106,18 @@ end
 def sw_date_breakdown(date)
   months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
   month = months.index(date.split[1]).to_i + 1
-  day = date.split.last.to_i
 
-  # If the checkin date is before the current day, log it as the following year
-  # This is because the southwest date formats do not show year so an assumption is made
-  year = Time.now.year
-  if month < Time.now.month
-    year += 1
-  elsif month == Time.now.month && day < Time.now.day
-    year += 1
+  weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+  day = date.split.last.to_i
+  
+  # this checks if the day of the week, month, and date combo is from the current year or the next
+  # the assumption is that no one would book a flight more than a year in advance
+  if Time.new(Time.now.year, month, day).wday == weekdays.index(date.split.first)
+    year = Time.now.year
+  elsif Time.new(Time.now.year + 1, month, day).wday == weekdays.index(date.split.first)
+    year = Time.now.year + 1
+  else
+    raise DateError, "The month and date does not occur this year or next year"
   end
 
   return [year, month, day]
