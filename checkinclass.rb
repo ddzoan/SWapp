@@ -71,7 +71,7 @@ class Checkindata < ActiveRecord::Base
           self.checkedin = true
 
           self.save
-          select_email_boarding_pass(self.email_sender, cookie)
+          select_email_boarding_pass(self.email_sender, final_response.cookies)
           return true
         end
       end
