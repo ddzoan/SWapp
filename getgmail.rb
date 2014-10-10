@@ -190,6 +190,10 @@ def log_data()
     email = Mail.new(msg)
     subject = email.subject
     sender = email.from.first
+    
+    # catch exceptions if necessary checkin data is not found
+    begin
+    
     raise EmailScrape::EmailFromSouthwest if sender.downcase.include?('southwest')
 
     received_date = email.date
@@ -200,9 +204,6 @@ def log_data()
     end
     emailhtml = Nokogiri::HTML(body)
     emailtext = emailhtml.text
-
-    # catch exceptions if necessary checkin data is not found
-    begin
 
     if !emailtext.include?("southwest.com")
       raise EmailScrape::NotSouthwestError
@@ -367,4 +368,7 @@ begin
   end
 rescue => e
   send_email(:notifydan,$options[:notify], "Gmail Checker Crashed", {message: "gmail checker crashed \n\n#{e.message}\n\n#{e.backtrace}"})
+  message = "#{Time.now} #{e}"
+  puts message
+  File.open('gmailerrors.txt', 'a') { |file| file.write(message + "\n") }
 end
