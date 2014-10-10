@@ -189,7 +189,7 @@ def log_data()
     # using Mail object
     email = Mail.new(msg)
     subject = email.subject
-    sender = email.from
+    sender = email.from.first
     raise EmailScrape::EmailFromSouthwest if sender.downcase.include?('southwest')
 
     received_date = email.date
@@ -301,7 +301,7 @@ def log_data()
             flight_number: flightnumber,
             email_sender: sender,
             conf_logged: Time.now})
-          
+
           send_email(:confirmation, sender, "re: #{subject}", {firstname: firstname, lastname: lastname, confirmation: confirmation, checkintime: checkintime})
         end
       end
