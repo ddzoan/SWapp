@@ -71,9 +71,21 @@ class Checkindata < ActiveRecord::Base
           self.checkedin = true
 
           self.save
+          select_email_boarding_pass(self.email_sender, cookie)
           return true
         end
       end
     end
   end
+end
+
+def select_email_boarding_pass(email_address, cookie)
+  emailform = { _optionPrint: 'on',
+    optionEmail: 'true',
+    _optionEmail: 'on',
+    emailAddress: email_address,
+    _optionText: 'on',
+    book_now: 'Continue' }
+  email_post = "http://www.southwest.com/flight/selectCheckinDocDelivery.html"
+  get_boarding = RestClient.post(email_post,emailform,:cookies => cookie) { |response, request, result, &block| response }
 end

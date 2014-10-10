@@ -43,6 +43,12 @@ class EmailScrape
   class Error < RuntimeError
   end
 
+  class EmailFromSouthwest < Error
+    def initialize(message = "Email is from southwest.com, not logging")
+      super(message)
+    end
+  end
+
   class NotSouthwestError < Error
     def initialize(message = "Did not find 'southwest.com' text in email")
       super(message)
@@ -177,15 +183,21 @@ def log_data()
   mailIds = $imap.search(['ALL'])
   mailIds.each do |id|
     envelope = $imap.fetch(id, "ENVELOPE")[0].attr["ENVELOPE"]
-    subject = envelope['subject']
-    sender = envelope.from[0].mailbox + '@' + envelope.from[0].host
-    received_date = envelope['date']
 
     # using net/imap
     msg = $imap.fetch(id,'RFC822')[0].attr['RFC822']
     # using Mail object
     email = Mail.new(msg)
-    body = email.html_part.body.decoded
+    subject = email.subject
+    sender = email.from
+    raise EmailScrape::EmailFromSouthwest if sender.downcase.include?('southwest')
+
+    received_date = email.date
+    if email.multipart?
+      body = email.html_part.body.decoded
+    else
+      body = email.body.decoded
+    end
     emailhtml = Nokogiri::HTML(body)
     emailtext = emailhtml.text
 
@@ -289,6 +301,7 @@ def log_data()
             flight_number: flightnumber,
             email_sender: sender,
             conf_logged: Time.now})
+          
           send_email(:confirmation, sender, "re: #{subject}", {firstname: firstname, lastname: lastname, confirmation: confirmation, checkintime: checkintime})
         end
       end
@@ -305,7 +318,9 @@ def log_data()
       File.open('errors/emailscrape/log.txt', 'a') { |file| file.write(Time.now.to_s + ' ' + e.message + ' "' + subject + "\"\n") }
 
       send_email(:notifydan,$options[:notify], "Bad southwest email received", {message: "A message was moved to the errors folder \n\n#{e.message}\n\n#{e.backtrace}"})
-      send_email(:error,sender, "re: #{subject}", {message: "An error has occurred while trying to log your data. \n\n#{e.message}"})
+      if !sender.downcase.include?("southwest")
+        send_email(:error,sender, "re: #{subject}", {message: "An error has occurred while trying to log your data. \n\n#{e.message}"})
+      end
       
       $imap.copy(id, "errors")
       $imap.store(id, "+FLAGS", [:Deleted])
