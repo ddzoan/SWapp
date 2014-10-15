@@ -71,7 +71,7 @@ class Checkindata < ActiveRecord::Base
           self.checkedin = true
 
           self.save
-          select_email_boarding_pass(self.email_sender, final_response.cookies)
+          select_email_boarding_pass(self.email_sender, confnum, final_response.cookies)
           return true
         end
       end
@@ -79,7 +79,7 @@ class Checkindata < ActiveRecord::Base
   end
 end
 
-def select_email_boarding_pass(email_address, cookie)
+def select_email_boarding_pass(email_address, confnum, cookies)
   emailform = { _optionPrint: 'on',
     optionEmail: 'true',
     _optionEmail: 'on',
@@ -87,5 +87,7 @@ def select_email_boarding_pass(email_address, cookie)
     _optionText: 'on',
     book_now: 'Continue' }
   email_post = "http://www.southwest.com/flight/selectCheckinDocDelivery.html"
-  get_boarding = RestClient.post(email_post,emailform,:cookies => cookie) { |response, request, result, &block| response }
+  get_boarding = RestClient.post(email_post,emailform,:cookies => cookies) { |response, request, result, &block| response }
+  filename = Time.now.to_s.split[0..1].join('_') + '_' + confnum + '_emailselect.html'
+  File.open(filename, 'w') { |file| file.write(get_boarding.body) }
 end

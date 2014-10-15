@@ -358,6 +358,12 @@ begin
         starttime = Time.now
         logins = 0
         # send_email(:notifydan,$options[:notify], "southwest gmail scrape error", {message: message} )
+      rescue Errno::EPIPE => e
+        message = "#{e.message} error, #{Time.now - starttime} seconds from start. Server has logged in #{logins} times. Sleeping 1 minute and then resetting starttime and logins."
+        File.open('gmailerrors.txt', 'a') { |file| file.write(message + "\n") }
+        sleep 60
+        starttime = Time.now
+        logins = 0
       end
     end
   else
