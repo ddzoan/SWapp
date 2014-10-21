@@ -4,10 +4,13 @@ require 'mail'
 require 'active_record'
 require 'optparse'
 require 'net/smtp'
+require 'logger'
 
 require './airportdata/airporthash.rb'
 # use global var $timezone["AAA"] to get time zone, replace AAA with airport code
 $debug = false
+$logger = Logger.new('logs/getgmail.log')
+$logger.level = Logger::WARN
 
 $options = {}
 OptionParser.new do |opts|
@@ -350,17 +353,21 @@ begin
         $imap.logout
         $imap.disconnect
         sleep 5
-      rescue Net::IMAP::ByeResponseError
-        message = "ByeResponseError #{Time.now - starttime} seconds from start. Server has logged in #{logins} times. Sleeping 1 minute and then resetting starttime and logins."
-        puts message
-        File.open('gmailerrors.txt', 'a') { |file| file.write(message + "\n") }
+      rescue Net::IMAP::ByeResponseError => e
+        # message = "ByeResponseError #{Time.now - starttime} seconds from start. Server has logged in #{logins} times. Sleeping 1 minute and then resetting starttime and logins."
+        # puts message
+        # File.open('gmailerrors.txt', 'a') { |file| file.write(message + "\n") }
+        $logger.fatal("Caught known exception, sleep 60 and re-log in")
+        $logger.fatal(e)
         sleep 60
         starttime = Time.now
         logins = 0
         # send_email(:notifydan,$options[:notify], "southwest gmail scrape error", {message: message} )
       rescue Errno::EPIPE => e
-        message = "#{e.message} error, #{Time.now - starttime} seconds from start. Server has logged in #{logins} times. Sleeping 1 minute and then resetting starttime and logins."
-        File.open('gmailerrors.txt', 'a') { |file| file.write(message + "\n") }
+        # message = "#{e.message} error, #{Time.now - starttime} seconds from start. Server has logged in #{logins} times. Sleeping 1 minute and then resetting starttime and logins."
+        # File.open('gmailerrors.txt', 'a') { |file| file.write(message + "\n") }
+        $logger.fatal("Caught known exception, sleep 60 and re-log in")
+        $logger.fatal(e)
         sleep 60
         starttime = Time.now
         logins = 0
@@ -374,7 +381,8 @@ begin
   end
 rescue => e
   send_email(:notifydan,$options[:notify], "Gmail Checker Crashed", {message: "gmail checker crashed \n\n#{e.message}\n\n#{e.backtrace}"})
+  $logger.fatal("Caught exception; exiting")
+  $logger.fatal(e)
   message = "#{Time.now} #{e}"
   puts message
-  File.open('gmailerrors.txt', 'a') { |file| file.write(message + "\n") }
 end
