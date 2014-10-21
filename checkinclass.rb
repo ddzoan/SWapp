@@ -1,6 +1,7 @@
 require 'time'
 require 'rest_client'
 require 'nokogiri'
+require 'active_record'
 
 class Checkindata < ActiveRecord::Base
   def timeToCheckin()
@@ -63,7 +64,7 @@ class Checkindata < ActiveRecord::Base
       if page.css("input.swa_buttons_submitButton")[0]['title'] == "Check In"
         real_checkin = "http://www.southwest.com/flight/selectPrintDocument.html"
         checkin_form = { :'checkinPassengers[0].selected' => true, :printDocuments => "Check In" }
-        
+ 
         $logger.info("about to do final POST to actually check in")
         final_response = RestClient.post(real_checkin,checkin_form,:cookies => cookie) { |response, request, result, &block| response }
         $logger.info("POSTed to final page to actually check in")
