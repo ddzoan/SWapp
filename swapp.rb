@@ -6,7 +6,7 @@ require 'yaml'
 require './checkinclass.rb'
 require 'logger'
 
-$logger = Logger.new('swappweb.log')
+$logger = Logger.new('logs/swappweb.log')
 
 dbconfig = YAML::load(File.open('database.yml'))
 ActiveRecord::Base.establish_connection(dbconfig)

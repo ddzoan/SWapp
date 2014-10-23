@@ -14,7 +14,7 @@ class Checkindata < ActiveRecord::Base
     elsif attempts > 10
       return false
     else
-      return timeToCheckin < 2
+      return timeToCheckin < 3
     end
   end
 
@@ -113,7 +113,7 @@ def select_email_boarding_pass(email_address, confnum, cookies)
   $logger.info("doing POST to tell southwest to email boarding pass")
   get_boarding = RestClient.post(email_post,emailform,:cookies => cookies) { |response, request, result, &block| response }
   $logger.info("did POST for email boarding pass and about to write to file")
-  filename = Time.now.to_s.split[0..1].join('_') + '_' + confnum + '_emailselect.html'
-  File.open(filename, 'w') { |file| file.write(get_boarding.body) }
-  $logger.info("wrote response to file")
+  #filename = Time.now.to_s.split[0..1].join('_') + '_' + confnum + '_emailselect.html'
+  #File.open(filename, 'w') { |file| file.write(get_boarding.body) }
+  #$logger.info("wrote response to file")
 end

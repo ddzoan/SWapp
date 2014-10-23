@@ -4,11 +4,14 @@ require 'yaml'
 require './checkinclass.rb'
 require 'logger'
 
-$logger = Logger.new('swappcheckins.log')
+$logger = Logger.new('logs/flightcheckerinner.log')
+
 $logger.level = Logger::INFO
 
 dbconfig = YAML::load(File.open('database.yml'))
 ActiveRecord::Base.establish_connection(dbconfig)
+
+puts "Starting Flight Checker Inner"
 
 while true do
   ActiveRecord::Base.connection_pool.with_connection do

@@ -341,6 +341,7 @@ logins = 0
 
 begin
   if $options[:login] && $options[:password] && $options[:notify]
+    puts "Starting Gmail checker"
     while true
       begin
         logins += 1
