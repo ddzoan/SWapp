@@ -107,12 +107,31 @@ end
 
 get '/deleteconfirmation/:id' do
   protected!
-  "<a href='/delete/#{params[:id]}'>Click here to confirm deletion</a>"
+  "<a href='/delete/#{params[:id]}'>Click here to confirm deletion</a><br>"
+  returncheckins = "<table><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td><td>Checked In?</td>"
+  returncheckins << "<td>Attempts</td>"
+  returncheckins << "<td>Depart</td><td>Arrive</td><td>Flight#</td><td>LoggedDate</td><td>EmailedFrom</td>"
+  Checkindata.find(params[:id]).each do |x|
+    returncheckins << "<tr>"
+    returncheckins << "<td>#{x.firstname}</td>"
+    returncheckins << "<td>#{x.lastname}</td>"
+    returncheckins << "<td>#{x.confnum}</td>"
+    returncheckins << "<td>#{x.time.getlocal}</td>"
+    returncheckins << "<td>#{x.checkedin}</td>"
+    returncheckins << "<td>#{x.attempts}</td>"
+    returncheckins << "<td>#{x.departing_airport}</td>"
+    returncheckins << "<td>#{x.arriving_airport}</td>"
+    returncheckins << "<td>#{x.flight_number}</td>"
+    returncheckins << "<td>#{x.conf_logged}</td>"
+    returncheckins << "<td>#{x.email_sender}</td>"
+    returncheckins << "</tr>"
+  end
 end
 
 get '/delete/:id' do
   protected!
   Checkindata.destroy(params[:id])
+  redirect to('/allcheckins/sorted')
 end
 
 get '/resetdbconnection' do
