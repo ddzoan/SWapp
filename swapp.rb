@@ -67,7 +67,7 @@ get '/allcheckins/sorted' do
     returncheckins << "<td>#{x.firstname}</td>"
     returncheckins << "<td>#{x.lastname}</td>"
     returncheckins << "<td>#{x.confnum}</td>"
-    returncheckins << "<td><a href=\"\">#{x.id}>del</a></td>"
+    returncheckins << "<td><a href='/delete/#{x.id}'>del</a></td>"
     returncheckins << "<td>#{x.time.getlocal}</td>"
     returncheckins << "<td>#{x.checkedin}</td>"
     returncheckins << "<td>#{x.attempts}</td>"
