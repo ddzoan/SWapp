@@ -55,13 +55,14 @@ class Checkindata < ActiveRecord::Base
       # puts "forwarded to: #{response.headers[:location]}"
 
       #follow forward
-      $logger.info("got 302, following response forward")
-      response = RestClient.get(response.headers[:location],:cookies => cookie) { |response, request, result, &block| response }
-      page = Nokogiri::HTML(response.body)
-      $logger.info("followed 302 forward and noko-parsed new page")
+      $logger.info("got 302, not following forwards")
+      #$logger.info("got 302, following response forward")
+      #response = RestClient.get(response.headers[:location],:cookies => cookie) { |response, request, result, &block| response }
+      #page = Nokogiri::HTML(response.body)
+      #$logger.info("followed 302 forward and noko-parsed new page")
       #not sure why I follow the forward when I don't use any of this data for the actual checkin, maybe waste of time?
       
-      if page.css("input.swa_buttons_submitButton")[0]['title'] == "Check In"
+      #if page.css("input.swa_buttons_submitButton")[0]['title'] == "Check In"
         real_checkin = "http://www.southwest.com/flight/selectPrintDocument.html"
         checkin_form = { :'checkinPassengers[0].selected' => true, :printDocuments => "Check In" }
  
@@ -97,7 +98,7 @@ class Checkindata < ActiveRecord::Base
           select_email_boarding_pass(self.email_sender, confnum, final_response.cookies)
           return true
         end
-      end
+      #end
     end
   end
 end

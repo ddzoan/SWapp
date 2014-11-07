@@ -372,6 +372,10 @@ begin
         sleep 60
         starttime = Time.now
         logins = 0
+      rescue EOFError => e
+	$logger.fatal("Caught known exception, sleep 60 and re-log in")
+	$logger.fatal(e)
+	sleep 60
       end
     end
   else
