@@ -111,7 +111,7 @@ get '/deleteconfirmation/:id' do
   returncheckins = "<table><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td><td>Checked In?</td>"
   returncheckins << "<td>Attempts</td>"
   returncheckins << "<td>Depart</td><td>Arrive</td><td>Flight#</td><td>LoggedDate</td><td>EmailedFrom</td>"
-  Checkindata.find(params[:id]).each do |x|
+  Checkindata.where(id: params[:id]).each do |x|
     returncheckins << "<tr>"
     returncheckins << "<td>#{x.firstname}</td>"
     returncheckins << "<td>#{x.lastname}</td>"
