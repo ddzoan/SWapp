@@ -59,7 +59,7 @@ end
 
 get '/allcheckins/sorted' do
   protected!
-  returncheckins = "<table><td>First Name</td><td>Last Name</td><td>Conf #</td><td>Checkin Time</td><td>Checked In?</td>"
+  returncheckins = "<table><td>First Name</td><td>Last Name</td><td>Conf #</td><td>DELETE</td><td>Checkin Time</td><td>Checked In?</td>"
   returncheckins << "<td>Attempts</td>"
   returncheckins << "<td>Depart</td><td>Arrive</td><td>Flight#</td><td>LoggedDate</td><td>EmailedFrom</td>"
   Checkindata.where(checkedin: false).order(:time).each do |x|
@@ -67,6 +67,7 @@ get '/allcheckins/sorted' do
     returncheckins << "<td>#{x.firstname}</td>"
     returncheckins << "<td>#{x.lastname}</td>"
     returncheckins << "<td>#{x.confnum}</td>"
+    returncheckins << "<td><a href=\"\">#{x.id}>del</a></td>"
     returncheckins << "<td>#{x.time.getlocal}</td>"
     returncheckins << "<td>#{x.checkedin}</td>"
     returncheckins << "<td>#{x.attempts}</td>"
@@ -102,6 +103,11 @@ end
 get '/allcheckins/sorted/:file' do
   protected!
   send_file("checkinpages/#{params[:file]}")
+end
+
+get '/delete/:id' do
+  protected!
+  Checkindata.destroy(params[:id])
 end
 
 get '/resetdbconnection' do
