@@ -105,6 +105,25 @@ get '/allcheckins/sorted/:file' do
   send_file("checkinpages/#{params[:file]}")
 end
 
+get '/admin' do
+  protected!
+  send_file("private/admin.html")
+end
+
+get '/logs/:file' do
+  protected!
+  case params[:file]
+  when "swapp"
+    send_file("logs/swappweb.log")
+  when "checkin"
+    send_file("logs/flightcheckerinner.log")
+  when "gmail"
+    send_file("logs/getgmail.log")
+  else
+    "ERROR"
+  end
+end
+
 get '/deleteconfirmation/:id' do
   protected!
   returncheckins = "<a href='/delete/#{params[:id]}'>Click here to confirm deletion</a><br>"
