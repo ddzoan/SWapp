@@ -95,10 +95,19 @@ class Checkindata < ActiveRecord::Base
           self.checkedin = true
 
           self.save
-          select_email_boarding_pass(self.email_sender, confnum, final_response.cookies)
+          if self.email_sender #if email was blank, don't send mobile boarding pass
+            select_email_boarding_pass(self.email_sender, confnum, final_response.cookies)
+          end
           return true
         end
       #end
+    else
+      $logger.info("UNKNOWN RESPONSE, CODE: #{response.code}")
+      filename = "errors/#{Time.now.to_s.split[0..1].join}_" + confnum + "_code#{response.code}.html"
+      $logger.info("about to write response page to #{filename}")
+      
+      File.open(filename, 'w') { |file| file.write(response.headers + "\n" + response.body) }
+      sleep 1
     end
   end
 end
