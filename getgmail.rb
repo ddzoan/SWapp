@@ -376,7 +376,7 @@ begin
       	$logger.fatal("Caught known exception, sleep 60 and re-log in")
       	$logger.fatal(e)
       	sleep 60
-      rescue Net::IMAP::NoResponseError =>
+      rescue Net::IMAP::NoResponseError => e
         $logger.fatal("Caught known exception, sleep 60 and re-log in")
         $logger.fatal(e)
         sleep 60
