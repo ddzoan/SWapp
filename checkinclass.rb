@@ -27,7 +27,7 @@ class Checkindata < ActiveRecord::Base
       :lastName => lastname,
       :submitButton => "Check In" }
 
-    checkin_doc = "http://www.southwest.com/flight/retrieveCheckinDoc.html"
+    checkin_doc = "https://www.southwest.com/flight/retrieveCheckinDoc.html"
 
     $logger.info("About to POST to SW")
     response = RestClient.post(checkin_doc,form) { |response, request, result, &block| response }
@@ -63,7 +63,7 @@ class Checkindata < ActiveRecord::Base
       #not sure why I follow the forward when I don't use any of this data for the actual checkin, maybe waste of time?
       
       #if page.css("input.swa_buttons_submitButton")[0]['title'] == "Check In"
-        real_checkin = "http://www.southwest.com/flight/selectPrintDocument.html"
+        real_checkin = "https://www.southwest.com/flight/selectPrintDocument.html"
         checkin_form = { :'checkinPassengers[0].selected' => true, :printDocuments => "Check In" }
  
         $logger.info("about to do final POST to actually check in")
@@ -119,7 +119,7 @@ def select_email_boarding_pass(email_address, confnum, cookies)
     emailAddress: email_address,
     _optionText: 'on',
     book_now: 'Continue' }
-  email_post = "http://www.southwest.com/flight/selectCheckinDocDelivery.html"
+  email_post = "https://www.southwest.com/flight/selectCheckinDocDelivery.html"
   $logger.info("doing POST to tell southwest to email boarding pass")
   get_boarding = RestClient.post(email_post,emailform,:cookies => cookies) { |response, request, result, &block| response }
   $logger.info("did POST for email boarding pass and about to write to file")
