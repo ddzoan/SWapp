@@ -70,7 +70,11 @@ class Checkindata < ActiveRecord::Base
         final_response = RestClient.post(real_checkin,checkin_form,:cookies => cookie) { |response, request, result, &block| response }
         $logger.info("POSTed to final page to actually check in")
         if final_response.code == 302
-          redir = final_response.headers[:location]
+          
+          # redir = final_response.headers[:location]
+          # turn page to https so don't get 302 response
+          redir = https_er(final_response.headers[:location])
+
           $logger.info("following redirect after actually checked in")
           redirpage = RestClient.get(redir,:cookies => cookie) { |response, request, result, &block| response }
           $logger.info("should be SUCCESS at #{Time.now}")
@@ -126,4 +130,13 @@ def select_email_boarding_pass(email_address, confnum, cookies)
   #filename = Time.now.to_s.split[0..1].join('_') + '_' + confnum + '_emailselect.html'
   #File.open(filename, 'w') { |file| file.write(get_boarding.body) }
   #$logger.info("wrote response to file")
+end
+
+def https_er(url)
+  if url.include?("http:")
+    url["http:"] = "https:"
+    return url
+  else
+    return url
+  end
 end
