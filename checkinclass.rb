@@ -39,14 +39,14 @@ class Checkindata < ActiveRecord::Base
       $logger.info("Got 200 response, parsing page")
       page = Nokogiri::HTML(response.body)
       if page.css("div#error_wrapper").length == 1
-        $logger.info("GOT ERROR DIV, WRITING ERROR TO FILE")
-        puts "GOT ERROR DIV, WRITING ERROR TO FILE"
-        File.open("errors/#{Time.now.to_s.split[0..1].join}_" + confnum + '_errordiv.html', 'w') { |file| file.write(page.css("div#error_wrapper").text) }
+        $logger.info("GOT ERROR DIV")
+        puts "GOT ERROR DIV"
+        # File.open("errors/#{Time.now.to_s.split[0..1].join}_" + confnum + '_errordiv.html', 'w') { |file| file.write(page.css("div#error_wrapper").text) }
         $logger.info(page.css("div#error_wrapper").text)
       else
         $logger.info("got 200, should have gotten 302, writing page to file")
         puts "got 200, should have gotten 302, writing page to file"
-        File.open(Time.now.to_s.split[0..1].join + '_bad200.html', 'w') { |file| file.write(page) }
+        File.open("errors/#{Time.now.to_s.split[0..1].join}_" + confnum + '_bad200.html', 'w') { |file| file.write(page) }
         $logger.info("wrote to file")
       end
 
@@ -80,14 +80,10 @@ class Checkindata < ActiveRecord::Base
           $logger.info("should be SUCCESS at #{Time.now}")
           puts "Should be SUCCESS at #{Time.now}"
           page = Nokogiri::HTML(redirpage.body)
-          $logger.info(page.css('.passenger_name').text.strip.split.join(' '))
-          $logger.info(page.css('td.boarding_group').text + page.css('td.boarding_position').text)
-          puts page.css('.passenger_name').text.strip.split.join(' ')
-          puts page.css('td.boarding_group').text + page.css('td.boarding_position').text
           
           self.response_code = redirpage.code
-          self.response_name = page.css('.passenger_name').text.strip.split.join(' ')
-          self.response_boarding = page.css('td.boarding_group').text + page.css('td.boarding_position').text
+          self.response_name = get_name(page)
+          self.response_boarding = get_boarding_position(page)
           self.checkin_time = Time.now.iso8601(3)
           $logger.info("stored response_code, response_name, response_boarding, and checkin_time")
           
@@ -116,6 +112,33 @@ class Checkindata < ActiveRecord::Base
   end
 end
 
+def get_name(page)
+  if page.title == "Southwest Airlines - Boarding Pass Options"
+    name = page.css('.passenger_name').text.strip.split.join(' ')
+  elsif page.title == "Southwest Airlines - Print Boarding Passes and Security Documents"
+    name = page.css('.passengerFirstName').text + ' ' + page.css('.passengerLastName').text
+  else
+    name = "CHECK PAGE RESP"
+  end
+  $logger.info(name)
+  puts name
+  return name
+end
+
+def get_boarding_position(page)
+  if page.title == "Southwest Airlines - Boarding Pass Options"
+    boarding_position = page.css('td.boarding_group').text + page.css('td.boarding_position').text
+  elsif page.title == "Southwest Airlines - Print Boarding Passes and Security Documents"
+    boarding_position = page.css('.group')[0]['alt']
+    page.css('.position').each { |pos| boarding_position += pos['alt'] }
+  else
+    boarding_position = "ERR"
+  end
+  $logger.info(boarding_position)
+  puts boarding_position
+  return boarding_position
+end
+
 def select_email_boarding_pass(email_address, confnum, cookies)
   emailform = { _optionPrint: 'on',
     optionEmail: 'true',
@@ -125,10 +148,11 @@ def select_email_boarding_pass(email_address, confnum, cookies)
     book_now: 'Continue' }
   email_post = "https://www.southwest.com/flight/selectCheckinDocDelivery.html"
   $logger.info("doing POST to tell southwest to email boarding pass")
-  get_boarding = RestClient.post(email_post,emailform,:cookies => cookies) { |response, request, result, &block| response }
-  $logger.info("did POST for email boarding pass and about to write to file")
+  get_boarding_pass = RestClient.post(email_post,emailform,:cookies => cookies) { |response, request, result, &block| response }
+  $logger.info("did POST for email boarding pass")
+  # $logger.info("did POST for email boarding pass and about to write to file")
   #filename = Time.now.to_s.split[0..1].join('_') + '_' + confnum + '_emailselect.html'
-  #File.open(filename, 'w') { |file| file.write(get_boarding.body) }
+  #File.open(filename, 'w') { |file| file.write(get_boarding_pass.body) }
   #$logger.info("wrote response to file")
 end
 

@@ -126,7 +126,7 @@ def sw_date_breakdown(date)
   elsif Time.new(Time.now.year + 1, month, day).wday == weekdays.index(date.split.first)
     year = Time.now.year + 1
   else
-    raise DateError, "The month and date does not occur this year or next year"
+    raise EmailScrape::DateError.new("The month and date does not occur this year or next year")
   end
 
   return [year, month, day]
@@ -319,7 +319,8 @@ def log_data()
 
     rescue EmailScrape::Error => e
       puts "#{e.message}. Moving it to errors folder!"
-      File.open('errors/emailscrape/log.txt', 'a') { |file| file.write(Time.now.to_s + ' ' + e.message + ' "' + subject + "\"\n") }
+      $logger.error("#{e.message}. Moving it to errors folder!")
+      # File.open('errors/emailscrape/log.txt', 'a') { |file| file.write(Time.now.to_s + ' ' + e.message + ' "' + subject + "\"\n") }
 
       send_email(:notifydan,$options[:notify], "Bad southwest email received", {message: "A message was moved to the errors folder \n\n#{e.message}\n\n#{e.backtrace}"})
       if !sender.downcase.include?("southwest")
