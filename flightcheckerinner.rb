@@ -31,11 +31,9 @@ $logger.level = Logger::INFO
 dbconfig = YAML::load(File.open('database.yml'))
 ActiveRecord::Base.establish_connection(dbconfig)
 
-puts "Starting Flight Checker Inner"
-
 begin
   if $options[:login] && $options[:password] && $options[:notify]
-    puts "Starting Gmail checker"
+    puts "Starting Flight Checker Inner"
 
     while true do
       ActiveRecord::Base.connection_pool.with_connection do

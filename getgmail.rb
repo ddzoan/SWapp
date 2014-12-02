@@ -381,7 +381,7 @@ begin
         $logger.fatal("Caught known exception, sleep 60 and re-log in")
         $logger.fatal(e)
         sleep 60
-      rescue SocketError =>
+      rescue SocketError => e
         $logger.fatal("Caught known exception, sleep 60 and re-log in")
         $logger.fatal(e)
         sleep 60
