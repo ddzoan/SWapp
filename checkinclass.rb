@@ -106,7 +106,7 @@ class Checkindata < ActiveRecord::Base
       filename = "errors/#{Time.now.to_s.split[0..1].join}_" + confnum + "_code#{response.code}.html"
       $logger.info("about to write response page to #{filename}")
       
-      File.open(filename, 'w') { |file| file.write(response.headers + "\n" + response.body) }
+      File.open(filename, 'w') { |file| file.write(response) }
       sleep 1
     end
   end
