@@ -267,9 +267,19 @@ def log_data()
         departurecity = departure_elements.css('div')[0].css('b')[0].text
         departurecitycode = departure_elements.css('div')[0].text.scan(/\((\w{3})\)/).first.first
         departuretime = departure_elements.css('div')[0].css('b')[1].text
-        arrivalcity = departure_elements.css('div')[0].css('b')[2].text
-        arrivalcitycode = departure_elements.css('div')[0].text.scan(/\((\w{3})\)/).last.first
-        arrivaltimetext = departure_elements.css('div')[0].css('b')[3].text
+        
+        # if no other bold item in this text found, that means there is another leg of flight
+        # the code in the else block traverses to the next table with the next leg data
+        if !departure_elements.css('div')[0].css('b')[2].nil?
+          arrivalcity = departure_elements.css('div')[0].css('b')[2].text
+          arrivalcitycode = departure_elements.css('div')[0].text.scan(/\((\w{3})\)/).last.first
+          arrivaltimetext = departure_elements.css('div')[0].css('b')[3].text
+        else
+          next_table_element = departure_elements.parent.parent.parent.next_element
+          arrivalcity = next_table_element.css('td')[3].css('b')[0].text
+          arrivalcitycode = next_table_element.css('td')[3].text.scan(/\((\w{3})\)/).last.first
+          arrivaltimetext = next_table_element.css('td')[3].css('b')[1].text
+        end
 
         year,month,day = sw_date_breakdown(date)
         
