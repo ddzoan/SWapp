@@ -107,7 +107,7 @@ def log_data()
       # Delete any old entries with the same confirmation num. Assumption: only updated itineraries will be sent in and old entries deleted
       # Someone who knows other confirmation numbers could potentially delete entries
       ActiveRecord::Base.connection_pool.with_connection do
-        Checkindata.where(confnum: checkindata['confnum']).each do |ci|
+        Checkindata.where(confnum: checkindata[:confnum]).each do |ci|
           send_email(:delete, ci.email_sender, "DELETING checkin for #{ci.firstname} #{ci.lastname}", {firstname: ci.firstname,lastname: ci.lastname,confirmation: ci.confnum, checkintime: ci.time})
           ci.delete
         end
@@ -117,7 +117,7 @@ def log_data()
         Checkindata.create(checkindata)
       end
 
-      send_email(:confirmation, sender, "re: #{subject}", {firstname: checkindata['firstname'], lastname: checkindata['lastname'], confirmation: checkindata['confnum'], checkintime: checkindata['time']})
+      send_email(:confirmation, sender, "re: #{subject}", {firstname: checkindata[:firstname], lastname: checkindata[:lastname], confirmation: checkindata[:confnum], checkintime: checkindata[:time]})
     end
 
     # move email to logged folder
