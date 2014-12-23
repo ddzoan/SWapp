@@ -114,7 +114,8 @@ def log_data()
       end
 
       ActiveRecord::Base.connection_pool.with_connection do
-            Checkindata.create(checkindata)
+        Checkindata.create(checkindata)
+      end
 
       send_email(:confirmation, sender, "re: #{subject}", {firstname: checkindata.firstname, lastname: checkindata.lastname, confirmation: checkindata.confnum, checkintime: checkindata.time})
     end
