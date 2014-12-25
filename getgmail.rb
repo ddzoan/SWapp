@@ -151,7 +151,7 @@ logins = 0
 
 begin
   if $options[:login] && $options[:password] && $options[:notify]
-    puts "Starting Gmail checker"
+    puts "Starting Gmail checker. #{Time.now}"
     while true
       begin
         logins += 1

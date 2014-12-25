@@ -33,7 +33,7 @@ ActiveRecord::Base.establish_connection(dbconfig)
 
 begin
   if $options[:login] && $options[:password] && $options[:notify]
-    puts "Starting Flight Checker Inner"
+    puts "Starting Flight Checker Inner. #{Time.now}"
 
     while true do
       ActiveRecord::Base.connection_pool.with_connection do
