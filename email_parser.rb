@@ -154,7 +154,7 @@ def email_parser(emailbody, sender)
     end
   end
 
-  return checkin_hashes
+  return [confirmation, checkin_hashes]
 end
 
 def get_passenger_names(header_element)

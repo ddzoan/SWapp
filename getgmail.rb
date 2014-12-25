@@ -100,18 +100,18 @@ def log_data()
       body = email.body.decoded
     end
 
-    checkin_hashes = email_parser(body, sender)
+    confnum, checkin_hashes = email_parser(body, sender)
+
+    # Delete any old entries with the same confirmation num. Assumption: only updated itineraries will be sent in and old entries deleted
+    # Someone who knows other confirmation numbers could potentially delete entries
+    ActiveRecord::Base.connection_pool.with_connection do
+      Checkindata.where(confnum: confnum).each do |ci|
+        send_email(:delete, ci.email_sender, "DELETING checkin for #{ci.firstname} #{ci.lastname}", {firstname: ci.firstname,lastname: ci.lastname,confirmation: ci.confnum, checkintime: ci.time})
+        ci.delete
+      end
+    end
 
     checkin_hashes.each do |checkindata|
-
-      # Delete any old entries with the same confirmation num. Assumption: only updated itineraries will be sent in and old entries deleted
-      # Someone who knows other confirmation numbers could potentially delete entries
-      ActiveRecord::Base.connection_pool.with_connection do
-        Checkindata.where(confnum: checkindata[:confnum]).each do |ci|
-          send_email(:delete, ci.email_sender, "DELETING checkin for #{ci.firstname} #{ci.lastname}", {firstname: ci.firstname,lastname: ci.lastname,confirmation: ci.confnum, checkintime: ci.time})
-          ci.delete
-        end
-      end
 
       ActiveRecord::Base.connection_pool.with_connection do
         Checkindata.create(checkindata)
