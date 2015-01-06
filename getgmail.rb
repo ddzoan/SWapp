@@ -207,9 +207,9 @@ begin
     puts " -n, --notif ADMIN                Require admin email for notifications"
   end
 rescue => e
-  send_email(:notifydan,$options[:notify], "Gmail Checker Crashed", {message: "gmail checker crashed \n\n#{e.message}\n\n#{e.backtrace}"})
   $logger.fatal("Caught exception; exiting")
   $logger.fatal(e)
   message = "#{Time.now} #{e}"
   puts message
+  send_email(:notifydan,$options[:notify], "Gmail Checker Crashed", {message: "gmail checker crashed \n\n#{e.message}\n\n#{e.backtrace}"})
 end
