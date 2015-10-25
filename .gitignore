@@ -2,3 +2,5 @@ checkins.db
 threadtest.rb
 errors/
 checkinpages/
+.DS_Store
+sample_emails/
