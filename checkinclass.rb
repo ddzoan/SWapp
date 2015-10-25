@@ -146,7 +146,7 @@ def select_email_boarding_pass(email_address, confnum, cookies)
   email_post = "https://www.southwest.com/flight/selectCheckinDocDelivery.html"
   $logger.info("doing POST to tell southwest to email boarding pass")
   get_boarding_pass = RestClient.post(email_post,emailform,:cookies => cookies) { |response, request, result, &block| response }
-  $logger.info("did POST for email boarding pass")
+  $logger.info("did POST for email boarding pass, got #{get_boarding_pass.code} response")
   # $logger.info("did POST for email boarding pass and about to write to file")
   #filename = Time.now.to_s.split[0..1].join('_') + '_' + confnum + '_emailselect.html'
   #File.open(filename, 'w') { |file| file.write(get_boarding_pass.body) }
