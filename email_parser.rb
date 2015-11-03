@@ -102,7 +102,7 @@ def email_parser(emailbody, sender)
       departurecity = departure_elements.css('div')[0].css('b')[0].text
       departurecitycode = departure_elements.css('div')[0].text.scan(/\((\w{3})\)/).first.first
       departuretime = departure_elements.css('div')[0].css('b')[1].text
-      
+
       # if no other bold item in this text found, that means there is another leg of flight
       # the code in the else block traverses to the next table with the next leg data
       if !departure_elements.css('div')[0].css('b')[2].nil?
@@ -117,12 +117,12 @@ def email_parser(emailbody, sender)
       end
 
       year,month,day = sw_date_breakdown(date)
-      
+
       departurezone = $timezone[departurecitycode]
-      hour,min = time_convertion(departuretime, departurezone)
+      hour,min = time_conversion(departuretime, departurezone)
 
       arrivalzone = $timezone[arrivalcitycode]
-      arrhour,arrmin = time_convertion(arrivaltimetext, arrivalzone)
+      arrhour,arrmin = time_conversion(arrivaltimetext, arrivalzone)
       arrivaltime = Time.new(year,month,day,arrhour,arrmin)
 
       flytime = Time.new(year, month, day, hour, min)
@@ -132,7 +132,7 @@ def email_parser(emailbody, sender)
         if $debug
           puts "#{flytime} #{name} | #{confirmation} | #{date} | #{flightnumber} | #{departurecitycode} at #{departuretime} #{departurezone} | #{arrivalcitycode} at #{arrivaltime}  #{$timezone["#{arrivalcitycode}"]}"
           puts "pacific time departure: #{hour}:#{min}"
-          
+
           puts "db create:"
           puts "firstname: #{name[0]}, lastname: #{name[1]}, confnum: #{confirmation},time: #{checkintime}"
           puts "departing_airport: #{departurecitycode}, depart_time: #{flytime}"
@@ -199,15 +199,6 @@ end
 
 def get_checkin_time(flytime)
   checkintime = flytime - 60*60*24
-  if checkintime.dst? == flytime.dst?
-    return checkintime
-  else
-    if flytime.dst?
-      return checkintime + 60*60
-    else
-      return checkintime - 60*60
-    end
-  end
 end
 
 def sw_date_breakdown(date)
@@ -216,7 +207,7 @@ def sw_date_breakdown(date)
 
   weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
   day = date.split.last.to_i
-  
+
   # this checks if the day of the week, month, and date combo is from the current year or the next
   # the assumption is that no one would book a flight more than a year in advance
   if Time.new(Time.now.year, month, day).wday == weekdays.index(date.split.first)
@@ -230,7 +221,7 @@ def sw_date_breakdown(date)
   return [year, month, day]
 end
 
-def time_convertion(time, offset)
+def time_conversion(time, offset)
   hour = time.split(':')[0].to_i
   min = time.split(' ')[0].split(':').last.to_i
   ampm = time.split(' ').last
