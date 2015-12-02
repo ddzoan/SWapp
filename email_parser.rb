@@ -51,7 +51,7 @@ def email_parser(emailbody, sender)
   emailhtml = Nokogiri::HTML(emailbody)
   emailtext = emailhtml.text
 
-  if !emailtext.include?("southwest.com")
+  if !emailtext.downcase.include?("southwest.com")
     raise EmailScrape::NotSouthwestError
   end
 
