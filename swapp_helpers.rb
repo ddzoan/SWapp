@@ -1,3 +1,7 @@
+require 'net/imap'
+require 'mail'
+require 'net/smtp'
+
 def send_email(type, recipient, subject, messagedata)
   case type
   when :confirmation

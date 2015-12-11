@@ -55,31 +55,52 @@ def email_parser(emailbody, sender)
     raise EmailScrape::NotSouthwestError
   end
 
-  find_conf = emailhtml.search "[text()*='AIR Confirmation']"
+  find_conf = []
+  email_type = 0
+  types = { 'AIR Confirmation': 1, 'Air Confirmation': 2, 'Air confirmation': 3}
+  types.keys.each do |key|
+    find_conf = emailhtml.search "[text()*='#{key}']"
+    unless find_conf.empty?
+      find_conf = find_conf[0]
+      email_type = types[key]
+      break
+    end
+  end
+
   find_name = emailhtml.search "[text()*='Passenger(s)']"
 
   if find_name.empty?
     raise EmailScrape::NameError
   end
 
-  # This deals with 2 different types of formatting that Southwest gives in their confirmation emails.
+  # This deals with 3 different types of formatting that Southwest gives in their confirmation emails.
   # If the confirmation number is not found through the more common method, it searches assuming the other format.
   # The name placement is dependent on this formatting so the relative element is found after determining the confirmation format.
-  if find_conf.empty?
-    find_conf = emailhtml.search "[text()*='Air Confirmation']"
-    confirmation = find_conf[0].parent.parent.parent.parent.parent.next_element.css('div').first.text.strip
-
-    # name = find_name[0].parent.parent.parent.parent.parent.next_element.css('div').last.text.strip
-    name = find_name[0].parent.parent.parent.parent.parent.next_element.css('div').last.text.strip
-    names = [name_conversion(name)]
-  else
-    confirmation = find_conf[0].last_element_child.child.text.strip
+  case email_type
+  when 1
+    confirmation = find_conf.last_element_child.child.text.strip
 
     passenger_header_element = find_name[0].parent.parent.parent.parent.parent
     names = get_passenger_names(passenger_header_element)
-  end
+  when 2
+    find_conf = emailhtml.search "[text()*='Air Confirmation']"
+    confirmation = find_conf.parent.parent.parent.parent.parent.next_element.css('div').first.text.strip
 
-  if find_conf.empty?
+    name = find_name[0].parent.parent.parent.parent.parent.next_element.css('div').last.text.strip
+    names = [name_conversion(name)]
+  when 3 # this is the 'Your trip is around the corner!' type email
+    until find_conf.node_name == 'table'
+      find_conf = find_conf.parent
+    end
+    raise EmailScrape::TypeError unless find_conf.text.include?('Air confirmation') && find_conf.text.include?('Passenger(s)')
+    next_table = find_conf.next
+    until next_table.node_name == 'table'
+      next_table = next_table.next
+    end
+    confirmation = next_table.css('td')[0].text.strip
+    name = next_table.css('td')[1].text.strip
+    names = [name_conversion(name)]
+  else
     raise EmailScrape::ConfirmationError
   end
 

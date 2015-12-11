@@ -1,8 +1,5 @@
-require 'net/imap'
-require 'mail'
 require 'active_record'
 require 'optparse'
-require 'net/smtp'
 require 'logger'
 
 require './email_parser.rb'
