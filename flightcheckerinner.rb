@@ -1,5 +1,4 @@
 require 'active_record'
-require 'mysql'
 require 'yaml'
 require './checkinclass.rb'
 require 'logger'

@@ -1,3 +1,2 @@
-adapter: mysql
-host: localhost
+adapter: sqlite3
 database: checkindata
