@@ -1,5 +1,6 @@
+#!/bin/bash
+
 # first need to:
-# PASSWORD=password
 # curl https://raw.githubusercontent.com/ddzoan/SWapp/master/installer.sh | bash
 
 apt-get install git -y
