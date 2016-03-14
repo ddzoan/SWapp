@@ -8,7 +8,8 @@ apt-add-repository ppa:brightbox/ruby-ng -y
 apt-get update -y
 apt-get install ruby2.2 -y
 
-apt-get install ruby2.2-dev zlib1g-dev liblzma-dev -y # for nokogiri
+apt-get install ruby2.2-dev build-essential -y
+apt-get install zlib1g-dev liblzma-dev -y # for nokogiri
 apt-get install libsqlite3-dev -y # needed for sqlite3
 
 gem install bundler
