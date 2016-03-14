@@ -28,5 +28,5 @@ cd swapp
 bundle install --path vendor/bundle
 
 # create DB
-rake migrate
+bundle exec rake migrate
 STR
