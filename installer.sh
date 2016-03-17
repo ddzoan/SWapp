@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # first need to:
-# curl https://raw.githubusercontent.com/ddzoan/SWapp/master/installer.sh | PASSWORD=password bash
+# curl https://raw.githubusercontent.com/ddzoan/SWapp/master/installer.sh > installer.sh && PASSWORD=password bash installer.sh
 
 apt-get install git -y
 apt-add-repository ppa:brightbox/ruby-ng -y
