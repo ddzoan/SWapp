@@ -1,5 +1,5 @@
 require 'time'
-require 'rest_client'
+require 'rest-client'
 require 'nokogiri'
 require 'active_record'
 
