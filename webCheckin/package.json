@@ -1,0 +1,15 @@
+{
+  "name": "swapp",
+  "version": "2.0.0",
+  "description": "Southwest Check In Tool",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Dan Dzoan",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^1.14.0"
+  }
+}
